@@ -27,9 +27,6 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
       
       <div className="trade-details">
         <div className="trade-detail">
-          <strong>Date:</strong> {trade.date}
-        </div>
-        <div className="trade-detail">
           <strong>Models:</strong> {trade.modelsUsed}
         </div>
         {trade.tradeLinks && (
@@ -47,8 +44,17 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
         )}
       </div>
 
-      <div className="trade-trader" style={{ marginTop: 'var(--spacing-3)', fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)', fontWeight: '500' }}>
-        Trader: {trade.traderName}
+      <div
+        className="trade-trader"
+        style={{
+          marginTop: 'var(--spacing-2)',
+          fontSize: 'var(--font-size-lg)',
+          color: 'var(--primary-color)',
+          fontWeight: 700,
+          letterSpacing: '-0.01em'
+        }}
+      >
+        {trade.traderName}
       </div>
 
       {trade.notes && (

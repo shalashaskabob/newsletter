@@ -81,7 +81,8 @@ body {
 }
 
 .newsletter-header {
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-card) 100%);
+  background: linear-gradient(135deg, rgba(212,175,55,0.25) 0%, rgba(184,148,31,0.25) 100%),
+              linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
   border-bottom: 2px solid var(--primary-color);
   color: var(--text-primary);
   padding: var(--spacing-8) var(--spacing-6);
@@ -97,16 +98,20 @@ body {
 }
 
 .newsletter-title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-3xl);
   font-weight: 700;
   margin-bottom: var(--spacing-2);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
 }
 
 .newsletter-subtitle {
+  font-family: var(--font-family);
   font-size: var(--font-size-lg);
-  opacity: 0.9;
-  font-weight: 300;
+  opacity: 0.95;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.25);
 }
 
 .newsletter-date {

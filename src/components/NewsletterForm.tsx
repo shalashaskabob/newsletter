@@ -408,7 +408,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                 type="text"
                 value={formData.edition}
                 onChange={(e) => setFormData({...formData, edition: e.target.value})}
-                placeholder="Edition #47"
+                placeholder="Edition 1"
               />
             </div>
             <div className="form-group">

@@ -163,16 +163,22 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
   return (
     <div className="newsletter-container">
       {/* Header */}
-      <header className="newsletter-header">
+      <header className="newsletter-header" style={{ position: 'relative' }}>
         <img src="/logo.svg" alt="KL Logo" className="newsletter-logo" />
-        <h1 className="newsletter-title">{data.title}</h1>
-        <p className="newsletter-subtitle">{data.subtitle}</p>
         {data.edition && (
-          <div className="newsletter-edition" style={{ fontSize: 'var(--font-size-base)', fontWeight: '600', color: 'var(--primary-color)', marginTop: 'var(--spacing-2)' }}>
+          <div className="newsletter-edition" style={{ 
+            position: 'absolute', 
+            top: 'var(--spacing-4)', 
+            right: 'var(--spacing-6)', 
+            fontSize: 'var(--font-size-base)', 
+            fontWeight: '600', 
+            color: 'var(--primary-color)' 
+          }}>
             {data.edition}
           </div>
         )}
-        <div className="newsletter-date">{data.date}</div>
+        <h1 className="newsletter-title">{data.title}</h1>
+        <p className="newsletter-subtitle">{data.subtitle}</p>
         {data.weekRange && (
           <div className="newsletter-week-range" style={{ fontSize: 'var(--font-size-sm)', opacity: 0.8, marginTop: 'var(--spacing-2)' }}>
             {data.weekRange}

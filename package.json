@@ -2,7 +2,10 @@
   "name": "newsletter-creator",
   "version": "1.0.0",
   "description": "Professional newsletter generator with PDF export",
-  "main": "index.js",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -11,7 +14,7 @@
     "start": "node server/index.js",
     "start-dev": "node scripts/start-dev.js",
     "build-and-serve": "npm run build && npm run server",
-    "render-build": "npm install && npm run build",
+    "render-build": "npm run build",
     "render-start": "npm run start"
   },
   "dependencies": {

@@ -409,12 +409,11 @@ function generateNewsletterHTML(newsletterData) {
                                         </span>
                                     </div>
                                     <div class="trade-details">
-                                        <div class="trade-detail"><strong>Date:</strong> ${trade.date}</div>
                                         <div class="trade-detail"><strong>Models:</strong> ${trade.modelsUsed}</div>
                                         ${trade.tradeLinks ? `<div class="trade-detail" style="grid-column: 1 / -1; margin-top: var(--spacing-3);"><strong>Links:</strong><a href="${trade.tradeLinks}" target="_blank" rel="noopener noreferrer" class="trade-link">View Trade →</a></div>` : ''}
                                     </div>
-                                    <div class="trade-trader" style="margin-top: var(--spacing-3); font-size: var(--font-size-sm); color: var(--text-secondary); font-weight: 500;">
-                                        Trader: ${trade.traderName}
+                                    <div class="trade-trader" style="margin-top: var(--spacing-2); font-size: var(--font-size-lg); color: var(--primary-color); font-weight: 700; text-align: center;">
+                                        ${trade.traderName}
                                     </div>
                                     ${trade.notes ? `<div class="trade-notes" style="margin-top: var(--spacing-3); font-size: var(--font-size-sm); color: var(--text-secondary); font-style: italic;">"${trade.notes}"</div>` : ''}
                                 </div>
@@ -437,12 +436,24 @@ function generateNewsletterHTML(newsletterData) {
 
                     ${section.dailyNews ? `
                         <div class="daily-news-grid">
-                            ${Object.entries(section.dailyNews).map(([day, headline]) => `
+                            ${['monday','tuesday','wednesday','thursday','friday'].map((dayKey) => {
+                                const items = (section.dailyNews && section.dailyNews[dayKey]) || [];
+                                const label = dayKey.charAt(0).toUpperCase() + dayKey.slice(1);
+                                return `
                                 <div class="daily-news-item">
-                                    <div class="daily-news-day">${day}</div>
-                                    <div class="daily-news-headline">${headline}</div>
-                                </div>
-                            `).join('')}
+                                  <div class="daily-news-day">${label}</div>
+                                  <ul class="daily-news-items">
+                                    ${items.length ? items.map((it) => `
+                                      <li class="daily-news-item">
+                                        <div class="daily-news-headline">${it.headline || ''}</div>
+                                        ${it.details ? `<div class=\"daily-news-details\">${it.details}</div>` : ''}
+                                      </li>
+                                    `).join('') : `
+                                      <li class="daily-news-item"><div class="daily-news-headline" style="color: var(--text-muted); font-style: italic;">No news items for this day</div></li>
+                                    `}
+                                  </ul>
+                                </div>`
+                            }).join('')}
                         </div>
                     ` : ''}
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NewsletterData, TraderTrade, TraderOfWeek, DailyNews, DailyNewsItem, CommunityNewsItem } from '../types/newsletter';
+import { NewsletterData, TraderTrade, TraderOfWeek, DailyNews, DailyNewsItem, CommunityNewsItem, NewsItem } from '../types/newsletter';
 
 interface NewsletterFormProps {
   onSubmit: (data: NewsletterData) => void;
@@ -46,7 +46,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     }
   );
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'trades' | 'trader-spotlight' | 'community-news' | 'daily-news'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'trades' | 'trader-spotlight' | 'community-news' | 'news' | 'daily-news'>('basic');
 
   // Trade form state
   const [newTrade, setNewTrade] = useState<Partial<TraderTrade>>({
@@ -97,6 +97,14 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     link: ''
   });
 
+  // Simple News section state
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
+  const [newNews, setNewNews] = useState<Partial<NewsItem>>({
+    title: '',
+    description: '',
+    link: ''
+  });
+
   const [trades, setTrades] = useState<TraderTrade[]>([]);
 
   // Load saved data on component mount
@@ -120,6 +128,11 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       const savedCommunityNews = localStorage.getItem('newsletter-community-news');
       if (savedCommunityNews) {
         setCommunityNews(JSON.parse(savedCommunityNews));
+      }
+
+      const savedNews = localStorage.getItem('newsletter-news');
+      if (savedNews) {
+        setNewsItems(JSON.parse(savedNews));
       }
     } catch (error) {
       console.error('Error loading saved data:', error);
@@ -146,6 +159,10 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
   useEffect(() => {
     localStorage.setItem('newsletter-community-news', JSON.stringify(communityNews));
   }, [communityNews]);
+
+  useEffect(() => {
+    localStorage.setItem('newsletter-news', JSON.stringify(newsItems));
+  }, [newsItems]);
 
   const addTrade = () => {
     if (newTrade.traderName && newTrade.symbol && newTrade.date && newTrade.modelsUsed) {
@@ -224,6 +241,20 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     }
   };
 
+  const addNews = () => {
+    if (newNews.title && newNews.description) {
+      const item: NewsItem = {
+        id: Date.now().toString(),
+        title: newNews.title!,
+        description: newNews.description!,
+        link: newNews.link || undefined,
+        author: newNews.author || undefined
+      };
+      setNewsItems([...newsItems, item]);
+      setNewNews({ title: '', description: '', link: '' });
+    }
+  };
+
   const handleSubmit = () => {
     
     const sections = [];
@@ -260,6 +291,15 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
         id: 'community-news',
         title: '🏛️ Kingline Community News',
         communityNews: communityNews
+      });
+    }
+
+    // Add News section if exists
+    if (newsItems.length > 0) {
+      sections.push({
+        id: 'news',
+        title: '🗞️ News',
+        newsItems
       });
     }
 
@@ -373,6 +413,12 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
           Community News ({communityNews.length})
         </button>
         <button 
+          className={`tab ${activeTab === 'news' ? 'active' : ''}`}
+          onClick={() => setActiveTab('news')}
+        >
+          News ({newsItems.length})
+        </button>
+        <button 
           className={`tab ${activeTab === 'daily-news' ? 'active' : ''}`}
           onClick={() => setActiveTab('daily-news')}
         >
@@ -420,6 +466,72 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                 placeholder="September 1st - 5th, 2024"
               />
             </div>
+          </div>
+        )}
+
+        {activeTab === 'news' && (
+          <div className="form-section">
+            <h3>News</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--spacing-6)' }}>
+              General news items. Displayed like Community News but without type/date.
+            </p>
+
+            <div className="community-news-form">
+              <div className="form-group">
+                <label>Title</label>
+                <input
+                  type="text"
+                  value={newNews.title || ''}
+                  onChange={(e) => setNewNews({ ...newNews, title: e.target.value })}
+                  placeholder="Headline title"
+                />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={newNews.description || ''}
+                  onChange={(e) => setNewNews({ ...newNews, description: e.target.value })}
+                  placeholder="Short description"
+                  rows={3}
+                />
+              </div>
+              <div className="form-group">
+                <label>Link (Optional)</label>
+                <input
+                  type="url"
+                  value={newNews.link || ''}
+                  onChange={(e) => setNewNews({ ...newNews, link: e.target.value })}
+                  placeholder="https://example.com/article"
+                />
+              </div>
+              <button type="button" onClick={addNews} className="btn btn-secondary" disabled={!(newNews.title && newNews.description)}>
+                Add News Item
+              </button>
+            </div>
+
+            {newsItems.length > 0 && (
+              <div className="community-news-list">
+                <h4>Added News ({newsItems.length})</h4>
+                {newsItems.map((item, index) => (
+                  <div key={item.id} className="community-news-preview">
+                    <div className="community-news-preview-title">{item.title}</div>
+                    <div className="community-news-preview-description">{item.description}</div>
+                    {item.link && (
+                      <div className="community-news-preview-meta">
+                        <a href={item.link} target="_blank" rel="noopener noreferrer" className="read-more">Read More →</a>
+                      </div>
+                    )}
+                    <button 
+                      type="button" 
+                      onClick={() => setNewsItems(newsItems.filter((_, i) => i !== index))}
+                      className="remove-btn"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

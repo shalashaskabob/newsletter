@@ -31,6 +31,14 @@ export interface CommunityNewsItem {
   link?: string;
 }
 
+export interface NewsItem {
+  id: string;
+  title: string;
+  description: string;
+  link?: string;
+  author?: string;
+}
+
 export interface TraderTrade {
   id: string;
   traderName: string;
@@ -61,6 +69,7 @@ export interface NewsletterSection {
   traderOfWeek?: TraderOfWeek;
   dailyNews?: DailyNews;
   communityNews?: CommunityNewsItem[];
+  newsItems?: NewsItem[];
 }
 
 export interface NewsletterData {

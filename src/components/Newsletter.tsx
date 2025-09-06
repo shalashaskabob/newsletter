@@ -1,5 +1,5 @@
 import React from 'react';
-import { NewsletterData, TraderTrade, TraderOfWeek, DailyNews, CommunityNewsItem } from '../types/newsletter';
+import { NewsletterData, TraderTrade, TraderOfWeek, DailyNews, CommunityNewsItem, NewsItem } from '../types/newsletter';
 
 interface NewsletterProps {
   data: NewsletterData;
@@ -14,6 +14,22 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
       maximumFractionDigits: 0,
     }).format(amount);
   };
+
+  const renderNews = (items: NewsItem[]) => (
+    <div className="community-news-container">
+      {items.map((item) => (
+        <div key={item.id} className="community-news-item">
+          <h3 className="community-news-title">{item.title}</h3>
+          <p className="community-news-description">{item.description}</p>
+          {item.link && (
+            <a href={item.link} className="community-news-link" target="_blank" rel="noopener noreferrer">
+              Read More →
+            </a>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 
 
   const renderTradeCard = (trade: TraderTrade) => (
@@ -227,11 +243,14 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
               </div>
             )}
 
-            {/* Community News Section */}
+            {/* Community News Section */
             {section.communityNews && renderCommunityNews(section.communityNews)}
 
             {/* Daily News Section */}
             {section.dailyNews && renderDailyNews(section.dailyNews)}
+
+            {/* News Section (simple) */}
+            {section.newsItems && renderNews(section.newsItems)}
 
             {/* Trader of the Week Section */}
             {section.traderOfWeek && renderTraderOfWeek(section.traderOfWeek)}

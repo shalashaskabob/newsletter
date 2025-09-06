@@ -467,6 +467,18 @@ function generateNewsletterHTML(newsletterData) {
                             `).join('')}
                         </div>
                     ` : ''}
+
+                    ${section.newsItems ? `
+                        <div class="community-news-list">
+                            ${section.newsItems.map(news => `
+                                <div class="community-news-item">
+                                    <div class="community-news-title">${news.title}</div>
+                                    <div class="community-news-content">${news.description || ''}</div>
+                                    ${news.link ? `<a href="${news.link}" class="community-news-link" target="_blank" rel="noopener noreferrer">Read More →</a>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
                 </section>
             `).join('')}
         </main>

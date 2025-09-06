@@ -27,9 +27,6 @@ app.post('/api/generate-image', async (req, res) => {
     // Generate HTML content
     const htmlContent = generateNewsletterHTML(newsletterData);
     
-    // Create a data URL with the HTML content
-    const htmlDataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
-
     // ScreenshotOne API configuration
     const screenshotOneApiKey = process.env.SCREENSHOTONE_API_KEY;
     
@@ -38,31 +35,30 @@ app.post('/api/generate-image', async (req, res) => {
       return res.status(500).json({ error: 'ScreenshotOne API key not configured' });
     }
 
-    // ScreenshotOne API parameters
-    const screenshotParams = new URLSearchParams({
-      access_key: screenshotOneApiKey,
-      url: htmlDataUrl,
-      viewport_width: '1200',
-      viewport_height: '1600',
-      device_scale_factor: '3',
-      format: 'png',
-      full_page: 'true',
-      delay: '2000', // Wait 2 seconds for fonts to load
-      wait_for_selector: 'body', // Wait for body to be ready
-      block_ads: 'true',
-      block_trackers: 'true',
-      block_cookie_banners: 'true'
-    });
-
-    const screenshotUrl = `https://api.screenshotone.com/take?${screenshotParams.toString()}`;
-    
     console.log('Calling ScreenshotOne API...');
-    
-    // Make request to ScreenshotOne
-    const response = await fetch(screenshotUrl);
+
+    // Prefer POST with raw HTML to avoid URL length limits
+    const response = await fetch('https://api.screenshotone.com/take', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'image/png' },
+      body: JSON.stringify({
+        access_key: screenshotOneApiKey,
+        html: htmlContent,
+        format: 'png',
+        viewport_width: 1200,
+        viewport_height: 1600,
+        device_scale_factor: 3,
+        full_page: true,
+        delay: 2,
+        block_ads: true,
+        block_trackers: true,
+        block_cookie_banners: true
+      })
+    });
     
     if (!response.ok) {
-      throw new Error(`ScreenshotOne API error: ${response.status} ${response.statusText}`);
+      const errText = await response.text().catch(() => '');
+      throw new Error(`ScreenshotOne API error: ${response.status} ${response.statusText} ${errText}`);
     }
 
     const imageBuffer = await response.arrayBuffer();

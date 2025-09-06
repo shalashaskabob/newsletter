@@ -42,9 +42,7 @@ function App() {
     }
   };
 
-  const handlePrintPreview = () => {
-    window.print();
-  };
+  // removed print preview per request
 
   const handleFormSubmit = (data: NewsletterData) => {
     setNewsletterData(data);
@@ -176,9 +174,6 @@ function App() {
               disabled={isGenerating}
             >
               {isGenerating ? 'Generating...' : 'Generate Image'}
-            </button>
-            <button className="btn btn-secondary" onClick={handlePrintPreview}>
-              Print Preview
             </button>
           </>
         )}

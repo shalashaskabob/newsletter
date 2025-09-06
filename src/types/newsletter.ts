@@ -68,6 +68,7 @@ export interface NewsletterData {
   subtitle: string;
   date: string;
   weekRange: string;
+  edition: string;
   sections: NewsletterSection[];
   footer: {
     companyName: string;

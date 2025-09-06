@@ -31,6 +31,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
         day: 'numeric' 
       }),
       weekRange: '',
+      edition: '',
       sections: [],
       footer: {
         companyName: 'KL Trading Community',
@@ -299,6 +300,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
           day: 'numeric' 
         }),
         weekRange: '',
+        edition: '',
         sections: [],
         footer: {
           companyName: 'KL Trading Community',
@@ -398,6 +400,15 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                 value={formData.subtitle}
                 onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
                 placeholder="Elite Trading Insights & Community Highlights"
+              />
+            </div>
+            <div className="form-group">
+              <label>Edition</label>
+              <input
+                type="text"
+                value={formData.edition}
+                onChange={(e) => setFormData({...formData, edition: e.target.value})}
+                placeholder="Edition #47"
               />
             </div>
             <div className="form-group">

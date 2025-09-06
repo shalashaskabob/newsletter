@@ -10,6 +10,7 @@ export const sampleNewsletterData: NewsletterData = {
     day: 'numeric' 
   }),
   weekRange: "September 1st - 5th, 2024",
+  edition: "Edition #47",
   sections: [
     {
       id: "official-trades",

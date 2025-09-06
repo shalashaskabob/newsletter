@@ -393,7 +393,9 @@ function generateNewsletterHTML(newsletterData) {
         <header class="newsletter-header">
             <h1 class="newsletter-title">${newsletterData.title}</h1>
             <p class="newsletter-subtitle">${newsletterData.subtitle}</p>
+            ${newsletterData.edition ? `<div class="newsletter-edition" style="font-size: var(--font-size-base); font-weight: 600; color: var(--primary-color); margin-top: var(--spacing-2);">${newsletterData.edition}</div>` : ''}
             <div class="newsletter-date">${newsletterData.date}</div>
+            ${newsletterData.weekRange ? `<div class="newsletter-week-range" style="font-size: var(--font-size-sm); opacity: 0.8; margin-top: var(--spacing-2);">${newsletterData.weekRange}</div>` : ''}
         </header>
 
         <main class="newsletter-content">

@@ -42,7 +42,7 @@ function App() {
     }
   };
 
-  const handlePreview = () => {
+  const handlePrintPreview = () => {
     window.print();
   };
 
@@ -177,7 +177,7 @@ function App() {
             >
               {isGenerating ? 'Generating...' : 'Generate Image'}
             </button>
-            <button className="btn btn-secondary" onClick={handlePreview}>
+            <button className="btn btn-secondary" onClick={handlePrintPreview}>
               Print Preview
             </button>
           </>

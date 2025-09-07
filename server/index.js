@@ -97,6 +97,8 @@ app.get('*', (req, res) => {
 });
 
 function generateNewsletterHTML(newsletterData) {
+  const fontScale = Number(newsletterData?.fontScale || 1);
+  const basePx = Math.round(16 * fontScale);
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -161,10 +163,7 @@ function generateNewsletterHTML(newsletterData) {
           padding: 0;
         }
 
-        html {
-          /* Increase base rem so all rem-based sizes scale up in screenshots */
-          font-size: 20px;
-        }
+        html { font-size: ${basePx}px; }
 
         body {
           font-family: var(--font-family);
@@ -175,222 +174,17 @@ function generateNewsletterHTML(newsletterData) {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
-
-        .newsletter-container {
-          width: 100vw;
-          max-width: none;
-          margin: 0;
-          background: var(--bg-primary);
-          color: var(--text-primary);
-          overflow: hidden;
-        }
-
-        .newsletter-header {
-          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-          color: var(--white);
-          padding: var(--spacing-8) var(--spacing-6);
-          text-align: center;
-        }
-
-        .newsletter-title {
-          font-family: 'Poppins', var(--font-family);
-          font-size: var(--font-size-3xl);
-          font-weight: 700;
-          margin-bottom: var(--spacing-2);
-          letter-spacing: -0.025em;
-        }
-
-        .newsletter-subtitle {
-          font-size: var(--font-size-lg);
-          opacity: 0.9;
-          font-weight: 300;
-        }
-
-        .newsletter-date {
-          font-size: var(--font-size-sm);
-          opacity: 0.8;
-          margin-top: var(--spacing-3);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .newsletter-content {
-          padding: var(--spacing-8) var(--spacing-6);
-        }
-
-        .newsletter-section {
-          margin-bottom: var(--spacing-8);
-        }
-
-        .section-title {
-          font-size: var(--font-size-2xl);
-          font-weight: 600;
-          color: var(--text-primary);
-          margin-bottom: var(--spacing-4);
-          padding-bottom: var(--spacing-2);
-          border-bottom: 2px solid var(--primary-color);
-          display: inline-block;
-        }
-
-        /* Trade Cards */
-        .trades-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: var(--spacing-6);
-          margin-bottom: var(--spacing-8);
-        }
-
-        .trade-card {
-          background: var(--bg-card);
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-lg);
-          padding: var(--spacing-6);
-        }
-
-        .trade-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: var(--spacing-4);
-        }
-
-        .trade-symbol {
-          font-size: var(--font-size-lg);
-          font-weight: 700;
-          color: var(--primary-color);
-        }
-
-        .trade-points {
-          padding: var(--spacing-1) var(--spacing-3);
-          border-radius: var(--radius-md);
-          font-size: var(--font-size-sm);
-          font-weight: 600;
-        }
-
-        .trade-points.positive {
-          background: rgba(34, 197, 94, 0.2);
-          color: var(--success-color);
-          border: 1px solid rgba(34, 197, 94, 0.3);
-        }
-
-        .trade-points.negative {
-          background: rgba(239, 68, 68, 0.2);
-          color: var(--danger-color);
-          border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .trade-details {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: var(--spacing-2);
-          margin-bottom: var(--spacing-4);
-        }
-
-        .trade-detail {
-          font-size: var(--font-size-sm);
-          color: var(--text-secondary);
-        }
-
-        .trade-link {
-          color: var(--primary-color);
-          text-decoration: none;
-          font-weight: 500;
-          margin-left: var(--spacing-2);
-        }
-
-        /* Daily News */
-        .daily-news-grid {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: var(--spacing-4);
-          margin-bottom: var(--spacing-8);
-        }
-
-        .daily-news-item {
-          background: var(--bg-card);
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-lg);
-          padding: var(--spacing-4);
-        }
-
-        .daily-news-day {
-          font-size: var(--font-size-sm);
-          font-weight: 600;
-          color: var(--primary-color);
-          margin-bottom: var(--spacing-2);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .daily-news-headline {
-          font-size: var(--font-size-sm);
-          color: var(--text-primary);
-          line-height: 1.4;
-        }
-
-        /* Community News */
-        .community-news-list {
-          display: grid;
-          gap: var(--spacing-4);
-        }
-
-        .community-news-item {
-          background: var(--bg-card);
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-lg);
-          padding: var(--spacing-4);
-        }
-
-        .community-news-title {
-          font-size: var(--font-size-base);
-          font-weight: 600;
-          color: var(--text-primary);
-          margin-bottom: var(--spacing-2);
-        }
-
-        .community-news-content {
-          font-size: var(--font-size-sm);
-          color: var(--text-secondary);
-          line-height: 1.5;
-        }
-
-        /* Trader of the Week */
-        .trader-spotlight {
-          background: var(--bg-card);
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-lg);
-          padding: var(--spacing-6);
-          margin-bottom: var(--spacing-8);
-        }
-
-        .trader-name {
-          font-size: var(--font-size-xl);
-          font-weight: 700;
-          color: var(--primary-color);
-          margin-bottom: var(--spacing-4);
-        }
-
-        .trader-stats {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: var(--spacing-4);
-          margin-bottom: var(--spacing-4);
-        }
-
-        .trader-stat {
-          font-size: var(--font-size-sm);
-          color: var(--text-secondary);
-        }
-
-        .trader-testimonial {
-          font-style: italic;
-          color: var(--text-primary);
-          font-size: var(--font-size-base);
-          line-height: 1.6;
-          margin-top: var(--spacing-4);
-          padding-top: var(--spacing-4);
-          border-top: 1px solid var(--border-color);
-        }
+        .newsletter-container { width: 100vw; max-width: none; margin: 0; background: var(--bg-primary); color: var(--text-primary); overflow: hidden; }
+        .newsletter-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: var(--white); padding: var(--spacing-8) var(--spacing-6); text-align: center; }
+        .newsletter-title { font-family: 'Poppins', var(--font-family); font-size: var(--font-size-3xl); font-weight: 700; margin-bottom: var(--spacing-2); letter-spacing: -0.025em; }
+        .newsletter-subtitle { font-size: var(--font-size-lg); opacity: 0.9; font-weight: 300; }
+        .newsletter-content { padding: var(--spacing-8) var(--spacing-6); }
+        .newsletter-section { margin-bottom: var(--spacing-8); }
+        .section-title { font-size: var(--font-size-2xl); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-4); padding-bottom: var(--spacing-2); border-bottom: 2px solid var(--primary-color); display: inline-block; }
+        .community-news-list { display: grid; gap: var(--spacing-4); }
+        .community-news-item { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-4); }
+        .community-news-title { font-size: var(--font-size-base); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-2); }
+        .community-news-content { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -406,66 +200,6 @@ function generateNewsletterHTML(newsletterData) {
             ${newsletterData.sections.map(section => `
                 <section class="newsletter-section">
                     <h2 class="section-title">${section.title}</h2>
-
-                    ${section.traderTrades ? `
-                        <div class="trades-grid">
-                            ${section.traderTrades.map(trade => `
-                                <div class="trade-card">
-                                    <div class="trade-header">
-                                        <span class="trade-symbol">${trade.symbol}</span>
-                                        <span class="trade-points ${trade.pointsGained >= 0 ? 'positive' : 'negative'}">
-                                            ${trade.pointsGained >= 0 ? '+' : ''}${trade.pointsGained} pts
-                                        </span>
-                                    </div>
-                                    <div class="trade-details">
-                                        <div class="trade-detail"><strong>Models:</strong> ${trade.modelsUsed}</div>
-                                        ${trade.tradeLinks ? `<div class="trade-detail" style="grid-column: 1 / -1; margin-top: var(--spacing-3);"><strong>Links:</strong><a href="${trade.tradeLinks}" target="_blank" rel="noopener noreferrer" class="trade-link">View Trade →</a></div>` : ''}
-                                    </div>
-                                    <div class="trade-trader" style="margin-top: var(--spacing-2); font-size: var(--font-size-lg); color: var(--primary-color); font-weight: 700; text-align: center;">
-                                        ${trade.traderName}
-                                    </div>
-                                    ${trade.notes ? `<div class="trade-notes" style="margin-top: var(--spacing-3); font-size: var(--font-size-sm); color: var(--text-secondary); font-style: italic;">"${trade.notes}"</div>` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-
-                    ${section.traderOfWeek ? `
-                        <div class="trader-spotlight">
-                            <div class="trader-name">${section.traderOfWeek.traderName}</div>
-                            <div class="trader-stats">
-                                <div class="trader-stat"><strong>Time in KL:</strong> ${section.traderOfWeek.timeInKL}</div>
-                                <div class="trader-stat"><strong>Cashback Earned:</strong> ${section.traderOfWeek.cashbackEarned}</div>
-                                <div class="trader-stat"><strong>Favorite Symbol:</strong> ${section.traderOfWeek.favoriteSymbol}</div>
-                                <div class="trader-stat"><strong>Favorite Model:</strong> ${section.traderOfWeek.favoriteTradingModel}</div>
-                            </div>
-                            ${section.traderOfWeek.testimonial ? `<div class="trader-testimonial">"${section.traderOfWeek.testimonial}"</div>` : ''}
-                        </div>
-                    ` : ''}
-
-                    ${section.dailyNews ? `
-                        <div class="daily-news-grid">
-                            ${['monday','tuesday','wednesday','thursday','friday'].map((dayKey) => {
-                                const items = (section.dailyNews && section.dailyNews[dayKey]) || [];
-                                const label = dayKey.charAt(0).toUpperCase() + dayKey.slice(1);
-                                return `
-                                <div class="daily-news-item">
-                                  <div class="daily-news-day">${label}</div>
-                                  <ul class="daily-news-items">
-                                    ${items.length ? items.map((it) => `
-                                      <li class="daily-news-item">
-                                        <div class="daily-news-headline">${it.headline || ''}</div>
-                                        ${it.details ? `<div class=\"daily-news-details\">${it.details}</div>` : ''}
-                                      </li>
-                                    `).join('') : `
-                                      <li class="daily-news-item"><div class="daily-news-headline" style="color: var(--text-muted); font-style: italic;">No news items for this day</div></li>
-                                    `}
-                                  </ul>
-                                </div>`
-                            }).join('')}
-                        </div>
-                    ` : ''}
-
                     ${section.communityNews ? `
                         <div class="community-news-list">
                             ${section.communityNews.map(news => `
@@ -476,7 +210,6 @@ function generateNewsletterHTML(newsletterData) {
                             `).join('')}
                         </div>
                     ` : ''}
-
                     ${section.newsItems ? `
                         <div class="community-news-list">
                             ${section.newsItems.map(news => `
@@ -488,7 +221,6 @@ function generateNewsletterHTML(newsletterData) {
                             `).join('')}
                         </div>
                     ` : ''}
-
                     ${section.customHtml || section.imageDataUrl ? `
                         <div class="community-news-list">
                             <div class="community-news-item">

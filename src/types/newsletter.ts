@@ -81,6 +81,8 @@ export interface NewsletterData {
   date: string;
   weekRange: string;
   edition: string;
+  // User-controlled scaling for overall typography
+  fontScale?: number;
   sections: NewsletterSection[];
   footer: {
     companyName: string;

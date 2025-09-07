@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Newsletter from './components/Newsletter';
 import NewsletterForm from './components/NewsletterForm';
 import { sampleNewsletterData } from './data/sampleNewsletter';
@@ -7,7 +7,17 @@ import { NewsletterData } from './types/newsletter';
 function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentView, setCurrentView] = useState<'form' | 'preview'>('form');
-  const [newsletterData, setNewsletterData] = useState<NewsletterData>(sampleNewsletterData);
+  const [newsletterData, setNewsletterData] = useState<NewsletterData>({ ...sampleNewsletterData, fontScale: 1 });
+
+  // Apply font scale to document root for preview
+  useEffect(() => {
+    const scale = newsletterData.fontScale ?? 1;
+    document.documentElement.style.setProperty('font-size', `${16 * scale}px`);
+    localStorage.setItem('newsletter-font-scale', String(scale));
+    return () => {
+      // no-op
+    };
+  }, [newsletterData.fontScale]);
 
   const handleGenerateImage = async () => {
     setIsGenerating(true);
@@ -58,6 +68,7 @@ function App() {
     try {
       // Load current form data from localStorage
       const savedFormData = localStorage.getItem('newsletter-form-basic');
+      const savedFontScale = localStorage.getItem('newsletter-font-scale');
       // Removed trades and trader of the week per request
       const savedDailyNews = localStorage.getItem('newsletter-daily-news');
       const savedCommunityNews = localStorage.getItem('newsletter-community-news');
@@ -116,6 +127,7 @@ function App() {
       // Create newsletter data
       const newsletterData = {
         ...formData,
+        fontScale: savedFontScale ? parseFloat(savedFontScale) : (formData.fontScale ?? 1),
         sections
       };
 
@@ -147,6 +159,18 @@ function App() {
           onClick={() => setCurrentView('form')}
         >
           Create Newsletter
+        </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => setNewsletterData(prev => ({ ...prev, fontScale: Math.max(0.8, (prev.fontScale ?? 1) - 0.05) }))}
+        >
+          A-
+        </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => setNewsletterData(prev => ({ ...prev, fontScale: Math.min(1.6, (prev.fontScale ?? 1) + 0.05) }))}
+        >
+          A+
         </button>
         <button 
           className={`btn ${currentView === 'preview' ? 'btn-primary' : 'btn-secondary'}`}

@@ -47,8 +47,8 @@ app.post('/api/generate-image', async (req, res) => {
         access_key: screenshotOneApiKey,
         html: htmlContent,
         format: 'png',
-        viewport_width: 1200,
-        viewport_height: 1600,
+        viewport_width: 1600,
+        viewport_height: 1800,
         device_scale_factor: 3,
         full_page: true,
         delay: 2,
@@ -177,7 +177,7 @@ function generateNewsletterHTML(newsletterData) {
         }
 
         .newsletter-container {
-          max-width: 1200px;
+          max-width: 1400px;
           margin: 0 auto;
           background: var(--bg-primary);
           color: var(--text-primary);

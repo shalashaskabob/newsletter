@@ -13,6 +13,16 @@ app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use(express.static(path.join(__dirname, '../dist')));
 
+// Persistent publish directory on Render
+const PUBLISH_DIR = process.env.PUBLISH_DIR || '/var/data/published';
+try {
+  fs.mkdirSync(PUBLISH_DIR, { recursive: true });
+} catch (e) {
+  console.warn('Could not ensure publish dir exists:', e?.message);
+}
+// Serve published HTML files
+app.use('/published', express.static(PUBLISH_DIR));
+
 // High-resolution image generation endpoint using ScreenshotOne
 app.post('/api/generate-image', async (req, res) => {
   try {
@@ -79,6 +89,26 @@ app.post('/api/generate-image', async (req, res) => {
   } catch (error) {
     console.error('Error generating image:', error);
     res.status(500).json({ error: 'Failed to generate image' });
+  }
+});
+
+// Publish endpoint: write HTML file to persistent storage
+app.post('/api/publish', async (req, res) => {
+  try {
+    const { newsletterData } = req.body;
+    if (!newsletterData) {
+      return res.status(400).json({ error: 'Newsletter data is required' });
+    }
+    const htmlContent = generateNewsletterHTML(newsletterData);
+    const id = `${Date.now()}`;
+    const filename = `${id}.html`;
+    const filePath = path.join(PUBLISH_DIR, filename);
+    fs.writeFileSync(filePath, htmlContent, 'utf8');
+    const url = `/published/${filename}`;
+    return res.json({ id, url });
+  } catch (err) {
+    console.error('Failed to publish newsletter:', err);
+    return res.status(500).json({ error: 'Failed to publish newsletter' });
   }
 });
 
@@ -241,4 +271,5 @@ function generateNewsletterHTML(newsletterData) {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} in ${NODE_ENV} mode`);
   console.log(`Frontend served from: ${path.join(__dirname, '../dist')}`);
+  console.log(`Published files served from: ${PUBLISH_DIR}`);
 });

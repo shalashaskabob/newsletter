@@ -193,6 +193,32 @@ function App() {
             >
               {isGenerating ? 'Generating...' : 'Generate Image'}
             </button>
+            <button
+              className="btn btn-secondary"
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/publish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newsletterData })
+                  });
+                  if (!res.ok) {
+                    throw new Error('Failed to publish');
+                  }
+                  const json = await res.json();
+                  if (json?.url) {
+                    window.open(json.url, '_blank');
+                  } else {
+                    alert('Publish succeeded but no URL returned.');
+                  }
+                } catch (err) {
+                  console.error(err);
+                  alert('Failed to publish newsletter.');
+                }
+              }}
+            >
+              Publish (Share Link)
+            </button>
           </>
         )}
       </div>

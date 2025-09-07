@@ -91,7 +91,7 @@ function App() {
       if (communityNews.length > 0) {
         sections.push({
           id: 'community-news',
-          title: '🏛️ Kingline Community News',
+          title: formData.labels?.communityNews || '🏛️ Kingline Community News',
           communityNews: communityNews
         });
       }
@@ -100,7 +100,7 @@ function App() {
       if (newsItems.length > 0) {
         sections.push({
           id: 'news',
-          title: '🗞️ News',
+          title: formData.labels?.news || '🗞️ News',
           newsItems
         });
       }
@@ -111,7 +111,7 @@ function App() {
         if (hasNewsItems) {
           sections.push({
             id: 'daily-news',
-            title: '📰 Economic News',
+            title: formData.labels?.dailyNews || '📰 Economic News',
             dailyNews: dailyNews
           });
         }

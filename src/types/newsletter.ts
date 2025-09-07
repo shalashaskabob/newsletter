@@ -81,6 +81,12 @@ export interface NewsletterData {
   date: string;
   weekRange: string;
   edition: string;
+  // Optional customizable section headings
+  labels?: {
+    communityNews?: string;
+    news?: string;
+    dailyNews?: string;
+  };
   // User-controlled scaling for overall typography
   fontScale?: number;
   sections: NewsletterSection[];

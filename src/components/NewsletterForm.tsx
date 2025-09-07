@@ -95,6 +95,11 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       }),
       weekRange: '',
       edition: '',
+      labels: {
+        communityNews: '🏛️ Kingline Community News',
+        news: '🗞️ News',
+        dailyNews: '📰 Economic News'
+      },
       sections: [],
       footer: {
         companyName: 'KL Trading Community',
@@ -302,7 +307,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     if (communityNews.length > 0) {
       sections.push({
         id: 'community-news',
-        title: '🏛️ Kingline Community News',
+        title: formData.labels?.communityNews || '🏛️ Kingline Community News',
         communityNews: communityNews
       });
     }
@@ -311,7 +316,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     if (newsItems.length > 0) {
       sections.push({
         id: 'news',
-        title: '🗞️ News',
+        title: formData.labels?.news || '🗞️ News',
         newsItems
       });
     }
@@ -326,7 +331,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     if (hasNewsItems) {
       sections.push({
         id: 'daily-news',
-        title: '📰 Economic News',
+        title: formData.labels?.dailyNews || '📰 Economic News',
         dailyNews: dailyNews
       });
     }
@@ -477,6 +482,29 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                 onChange={(e) => setFormData({...formData, weekRange: e.target.value})}
                 placeholder="September 1st - 5th, 2024"
               />
+            </div>
+            <div className="form-group">
+              <label>Section Headings</label>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                <input
+                  type="text"
+                  value={formData.labels?.communityNews || ''}
+                  onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, communityNews: e.target.value } })}
+                  placeholder="🏛️ Kingline Community News"
+                />
+                <input
+                  type="text"
+                  value={formData.labels?.news || ''}
+                  onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, news: e.target.value } })}
+                  placeholder="🗞️ News"
+                />
+                <input
+                  type="text"
+                  value={formData.labels?.dailyNews || ''}
+                  onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, dailyNews: e.target.value } })}
+                  placeholder="📰 Economic News"
+                />
+              </div>
             </div>
           </div>
         )}

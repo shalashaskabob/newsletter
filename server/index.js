@@ -211,13 +211,70 @@ app.post('/api/publish', async (req, res) => {
     if (!newsletterData) {
       return res.status(400).json({ error: 'Newsletter data is required' });
     }
-    const htmlContent = generateNewsletterHTML(newsletterData);
     const id = `${Date.now()}`;
     const filename = `${id}.html`;
+    const pngName = `${id}.png`;
     const filePath = path.join(PUBLISH_DIR, filename);
-    fs.writeFileSync(filePath, htmlContent, 'utf8');
+    const pngPath = path.join(PUBLISH_DIR, pngName);
+
+    // 1) Base HTML for the newsletter
+    const htmlContent = generateNewsletterHTML(newsletterData);
+
+    // 2) Attempt to generate an image for social previews
+    let ogImageUrl = '';
+    try {
+      const screenshotOneApiKey = process.env.SCREENSHOTONE_API_KEY;
+      if (screenshotOneApiKey) {
+        const resp = await fetch('https://api.screenshotone.com/take', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'image/png' },
+          body: JSON.stringify({
+            access_key: screenshotOneApiKey,
+            html: htmlContent,
+            format: 'png',
+            viewport_width: 1920,
+            viewport_height: 2200,
+            device_scale_factor: 3,
+            full_page: true,
+            delay: 2,
+            block_ads: true,
+            block_trackers: true,
+            block_cookie_banners: true
+          })
+        });
+        if (resp.ok) {
+          const ab = await resp.arrayBuffer();
+          fs.writeFileSync(pngPath, Buffer.from(new Uint8Array(ab)));
+          ogImageUrl = `${req.protocol}://${req.get('host')}/published/${pngName}`;
+        }
+      }
+    } catch (e) {
+      console.warn('Social image generation failed:', e?.message);
+    }
+
+    // 3) Inject Open Graph/Twitter meta tags
+    const canonical = `${req.protocol}://${req.get('host')}/published/${filename}`;
+    const escape = (s) => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    const ogTitle = escape(newsletterData.title);
+    const ogDesc = escape(newsletterData.subtitle || newsletterData.weekRange || '');
+    const meta = `
+    <link rel="canonical" href="${canonical}">
+    <meta property="og:title" content="${ogTitle}">
+    <meta property="og:description" content="${ogDesc}">
+    ${ogImageUrl ? `<meta property=\"og:image\" content=\"${ogImageUrl}\">` : ''}
+    <meta property="og:url" content="${canonical}">
+    <meta property="og:type" content="article">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${ogTitle}">
+    <meta name="twitter:description" content="${ogDesc}">
+    ${ogImageUrl ? `<meta name=\"twitter:image\" content=\"${ogImageUrl}\">` : ''}
+    `;
+    const injected = htmlContent.replace('</head>', `${meta}\n</head>`);
+
+    // 4) Write the HTML file
+    fs.writeFileSync(filePath, injected, 'utf8');
     const url = `/published/${filename}`;
-    return res.json({ id, url });
+    return res.json({ id, url, image: ogImageUrl });
   } catch (err) {
     console.error('Failed to publish newsletter:', err);
     return res.status(500).json({ error: 'Failed to publish newsletter' });

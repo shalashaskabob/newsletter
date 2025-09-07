@@ -316,13 +316,18 @@ function generateNewsletterHTML(newsletterData) {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
-        .newsletter-container { width: 100vw; max-width: none; margin: 0; background: var(--bg-primary); color: var(--text-primary); overflow: hidden; }
+        .newsletter-container { width: 100vw; max-width: none; margin: 0; background: var(--bg-primary); color: var(--text-primary); overflow: visible; }
         .newsletter-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: var(--white); padding: var(--spacing-8) var(--spacing-6); text-align: center; }
         .newsletter-title { font-family: 'Poppins', var(--font-family); font-size: var(--font-size-3xl); font-weight: 700; margin-bottom: var(--spacing-2); letter-spacing: -0.025em; }
         .newsletter-subtitle { font-size: var(--font-size-lg); opacity: 0.9; font-weight: 300; }
         .newsletter-content { padding: var(--spacing-8) var(--spacing-6); }
         .newsletter-section { margin-bottom: var(--spacing-8); }
         .section-title { font-size: var(--font-size-2xl); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-4); padding-bottom: var(--spacing-2); border-bottom: 2px solid var(--primary-color); display: inline-block; }
+        /* Daily News grid styles (responsive) */
+        .daily-news-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--spacing-4); margin-bottom: var(--spacing-8); }
+        @media (max-width: 1400px) { .daily-news-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 900px) { .daily-news-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .daily-news-grid { grid-template-columns: 1fr; } }
         .community-news-list { display: grid; gap: var(--spacing-4); }
         .community-news-item { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-4); }
         .community-news-title { font-size: var(--font-size-base); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-2); }

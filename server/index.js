@@ -397,6 +397,8 @@ function generateNewsletterHTML(newsletterData) {
         .community-news-item { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-4); }
         .community-news-title { font-size: var(--font-size-base); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-2); }
         .community-news-content { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; }
+        .community-news-link { display: inline-block; margin-top: var(--spacing-3); background: var(--primary-color); color: var(--bg-primary); text-decoration: none; font-weight: 600; padding: 8px 12px; border-radius: var(--radius-md); }
+        .community-news-link:hover { background: var(--primary-dark); color: var(--bg-primary); }
     </style>
 </head>
 <body>
@@ -418,6 +420,7 @@ function generateNewsletterHTML(newsletterData) {
                                 <div class="community-news-item">
                                     <div class="community-news-title">${news.title}</div>
                                     <div class="community-news-content">${news.description || news.content || ''}</div>
+                                    ${news.link ? `<a href="${news.link}" class="community-news-link" target="_blank" rel="noopener noreferrer">Read More →</a>` : ''}
                                 </div>
                             `).join('')}
                         </div>

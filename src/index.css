@@ -805,6 +805,9 @@ body {
   padding: var(--spacing-5);
   border: 1px solid var(--border-color);
   transition: all 0.2s ease;
+  /* Prevent grid child from expanding container */
+  min-width: 0;
+  overflow: hidden;
 }
 
 .daily-news-pane:hover {
@@ -837,6 +840,9 @@ body {
   color: var(--text-secondary);
   line-height: 1.5;
   font-size: var(--font-size-sm);
+  /* Wrap long headlines so the pane doesn't stretch */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .daily-news-item:before {
@@ -903,6 +909,9 @@ body {
   padding: var(--spacing-4);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
+  /* Keep grid child within container */
+  min-width: 0;
+  overflow: hidden;
 }
 
 .daily-news-day-title {
@@ -928,6 +937,8 @@ body {
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: var(--font-size-sm);
+  /* Allow input to shrink in flex container */
+  min-width: 0;
 }
 
 .news-item-input button {

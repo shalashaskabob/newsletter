@@ -104,7 +104,7 @@ function generateNewsletterHTML(newsletterData) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${newsletterData.title}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
           /* KL Brand Colors - Dark Mode */
@@ -161,6 +161,11 @@ function generateNewsletterHTML(newsletterData) {
           padding: 0;
         }
 
+        html {
+          /* Increase base rem so all rem-based sizes scale up in screenshots */
+          font-size: 20px;
+        }
+
         body {
           font-family: var(--font-family);
           font-size: var(--font-size-base);
@@ -187,6 +192,7 @@ function generateNewsletterHTML(newsletterData) {
         }
 
         .newsletter-title {
+          font-family: 'Poppins', var(--font-family);
           font-size: var(--font-size-3xl);
           font-weight: 700;
           margin-bottom: var(--spacing-2);

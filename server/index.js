@@ -11,7 +11,7 @@ app.use(cors());
 // Increase body size limit to accommodate embedded image data URLs
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
-app.use(express.static(path.join(__dirname, '../dist')));
+// We'll mount auth-protected static later, after auth middleware
 
 // Persistent publish directory on Render
 const PUBLISH_DIR = process.env.PUBLISH_DIR || '/var/data/published';
@@ -22,6 +22,118 @@ try {
 }
 // Serve published HTML files
 app.use('/published', express.static(PUBLISH_DIR));
+
+// -----------------
+// Simple cookie auth
+// -----------------
+const crypto = require('crypto');
+const AUTH_SECRET = process.env.AUTH_SECRET || 'kl_news_local_secret_please_change';
+const AUTH_COOKIE = 'kl_session';
+const USERNAME = 'KLNewsTeam';
+const PASSWORD = 'KLNewsTeam123!@#';
+
+function parseCookies(req) {
+  const header = req.headers.cookie || '';
+  const cookies = {};
+  header.split(';').forEach((pair) => {
+    const idx = pair.indexOf('=');
+    if (idx > -1) {
+      const key = pair.slice(0, idx).trim();
+      const val = decodeURIComponent(pair.slice(idx + 1).trim());
+      if (key) cookies[key] = val;
+    }
+  });
+  return cookies;
+}
+
+function sign(value) {
+  const h = crypto.createHmac('sha256', AUTH_SECRET).update(value).digest('hex');
+  return `${value}.${h}`;
+}
+
+function verify(signed) {
+  if (!signed) return false;
+  const lastDot = signed.lastIndexOf('.');
+  if (lastDot === -1) return false;
+  const value = signed.slice(0, lastDot);
+  const sig = signed.slice(lastDot + 1);
+  const expected = crypto.createHmac('sha256', AUTH_SECRET).update(value).digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
+}
+
+function isPublicPath(p) {
+  return (
+    p === '/login' ||
+    p === '/api/login' ||
+    p === '/api/health' ||
+    p.startsWith('/published/') ||
+    p.startsWith('/published') ||
+    p === '/logo.svg' ||
+    p === '/favicon.ico'
+  );
+}
+
+// Login endpoint
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body || {};
+  if (username === USERNAME && password === PASSWORD) {
+    const payload = JSON.stringify({ u: USERNAME, iat: Date.now() });
+    const cookieValue = sign(Buffer.from(payload).toString('base64'));
+    res.cookie
+      ? res.cookie(AUTH_COOKIE, cookieValue, { httpOnly: true, sameSite: 'lax', secure: NODE_ENV !== 'development', maxAge: 7 * 24 * 60 * 60 * 1000 })
+      : res.setHeader('Set-Cookie', `${AUTH_COOKIE}=${encodeURIComponent(cookieValue)}; HttpOnly; Path=/; SameSite=Lax${NODE_ENV !== 'development' ? '; Secure' : ''}; Max-Age=${7 * 24 * 60 * 60}`);
+    return res.json({ ok: true });
+  }
+  return res.status(401).json({ error: 'Invalid credentials' });
+});
+
+// Logout endpoint
+app.post('/api/logout', (req, res) => {
+  res.setHeader('Set-Cookie', `${AUTH_COOKIE}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0`);
+  res.json({ ok: true });
+});
+
+// Login page (simple form)
+app.get('/login', (req, res) => {
+  const html = `<!doctype html>
+  <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login - KL Newsletter</title>
+  <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0d1117;color:#f0f6fc;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0} .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;max-width:360px;width:100%} h1{font-size:20px;margin:0 0 12px} label{font-size:12px;display:block;margin:10px 0 6px;color:#b0bac4} input{width:100%;padding:10px;border-radius:8px;border:1px solid #30363d;background:#21262d;color:#f0f6fc} button{margin-top:16px;width:100%;padding:10px;border:none;border-radius:8px;background:#d4af37;color:#0d1117;font-weight:600;cursor:pointer} .error{color:#ef4444;margin-top:10px;font-size:12px}</style>
+  </head><body>
+  <div class="card">
+    <h1>KL Newsletter Login</h1>
+    <label>Username</label>
+    <input id="u" placeholder="Username" />
+    <label>Password</label>
+    <input id="p" placeholder="Password" type="password" />
+    <button id="b">Login</button>
+    <div id="e" class="error" style="display:none;">Invalid credentials</div>
+  </div>
+  <script>
+    document.getElementById('b').addEventListener('click', async () => {
+      const username = document.getElementById('u').value;
+      const password = document.getElementById('p').value;
+      const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+      if (res.ok) { window.location.href = '/'; } else { document.getElementById('e').style.display = 'block'; }
+    });
+  </script>
+  </body></html>`;
+  res.setHeader('Content-Type', 'text/html');
+  res.send(html);
+});
+
+// Auth guard for everything except public paths
+app.use((req, res, next) => {
+  if (isPublicPath(req.path)) return next();
+  const cookies = parseCookies(req);
+  const token = cookies[AUTH_COOKIE];
+  if (verify(token)) return next();
+  if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'Unauthorized' });
+  return res.redirect('/login');
+});
+
+// After auth, serve app assets
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // High-resolution image generation endpoint using ScreenshotOne
 app.post('/api/generate-image', async (req, res) => {

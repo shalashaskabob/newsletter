@@ -9,35 +9,62 @@ interface NewsletterFormProps {
 
 const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }) => {
   // Helper: compress an image file and return a data URL
-  const fileToDataUrlCompressed = (file: File, maxWidth = 1400, maxHeight = 1400, quality = 0.9): Promise<string> => {
+  const fileToDataUrlCompressed = async (file: File, maxWidth = 1400, maxHeight = 1400, quality = 0.9): Promise<string> => {
+    if (!file.type.startsWith('image/')) {
+      throw new Error('Selected file is not an image');
+    }
+
+    const drawToCanvas = (source: any, width: number, height: number) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas not supported');
+      ctx.drawImage(source, 0, 0, width, height);
+      return canvas.toDataURL('image/jpeg', quality);
+    };
+
+    // Prefer createImageBitmap for robustness
+    if ('createImageBitmap' in window) {
+      const bitmap = await createImageBitmap(file).catch(() => null as any);
+      if (bitmap) {
+        let width = bitmap.width;
+        let height = bitmap.height;
+        const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+        const dataUrl = drawToCanvas(bitmap, width, height);
+        // @ts-ignore close might not exist in some browsers
+        if (typeof (bitmap as any).close === 'function') { (bitmap as any).close(); }
+        return dataUrl;
+      }
+    }
+
+    // Fallback: use Image with Object URL
     return new Promise((resolve, reject) => {
       try {
+        const objectUrl = URL.createObjectURL(file);
         const img = new Image();
-        const reader = new FileReader();
-        reader.onload = () => {
-          img.onload = () => {
-            try {
-              const canvas = document.createElement('canvas');
-              let { width, height } = img;
-              const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
-              width = Math.round(width * ratio);
-              height = Math.round(height * ratio);
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              if (!ctx) return reject(new Error('Canvas not supported'));
-              ctx.drawImage(img, 0, 0, width, height);
-              const dataUrl = canvas.toDataURL('image/jpeg', quality);
-              resolve(dataUrl);
-            } catch (err) {
-              reject(err);
-            }
-          };
-          img.onerror = (e) => reject(new Error('Image load failed'));
-          img.src = reader.result as string;
+        img.onload = () => {
+          try {
+            let width = img.naturalWidth;
+            let height = img.naturalHeight;
+            const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+            const dataUrl = drawToCanvas(img, width, height);
+            URL.revokeObjectURL(objectUrl);
+            resolve(dataUrl);
+          } catch (err) {
+            URL.revokeObjectURL(objectUrl);
+            reject(err);
+          }
         };
-        reader.onerror = (e) => reject(new Error('File read failed'));
-        reader.readAsDataURL(file);
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error('Image load failed'));
+        };
+        img.src = objectUrl;
       } catch (e) {
         reject(e as Error);
       }

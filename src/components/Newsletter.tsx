@@ -255,8 +255,12 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
                     <div className="community-news-description" dangerouslySetInnerHTML={{ __html: section.customHtml }} />
                   )}
                   {section.imageDataUrl && (
-                    <div style={{marginTop:'12px'}}>
-                      <img src={section.imageDataUrl} alt="section" style={{maxWidth:'100%', borderRadius:'12px'}} />
+                    <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
+                      <img
+                        src={section.imageDataUrl}
+                        alt="section"
+                        style={{ maxWidth: '100%', borderRadius: '12px', display: 'block', margin: '0 auto' }}
+                      />
                     </div>
                   )}
                 </div>

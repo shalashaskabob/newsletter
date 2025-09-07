@@ -225,7 +225,7 @@ function generateNewsletterHTML(newsletterData) {
                         <div class="community-news-list">
                             <div class="community-news-item">
                                 ${section.customHtml ? `<div class=\"community-news-content\">${section.customHtml}</div>` : ''}
-                                ${section.imageDataUrl ? `<div style=\"margin-top:12px\"><img src=\"${section.imageDataUrl}\" alt=\"custom\" style=\"max-width:100%; border-radius:12px\" /></div>` : ''}
+                                ${section.imageDataUrl ? `<div style=\"margin-top:12px; display:flex; justify-content:center;\"><img src=\"${section.imageDataUrl}\" alt=\"custom\" style=\"max-width:100%; border-radius:12px; display:block; margin:0 auto;\" /></div>` : ''}
                             </div>
                         </div>
                     ` : ''}

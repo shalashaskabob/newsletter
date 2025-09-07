@@ -298,6 +298,14 @@ app.get('*', (req, res) => {
 function generateNewsletterHTML(newsletterData) {
   const fontScale = Number(newsletterData?.fontScale || 1);
   const basePx = Math.round(16 * fontScale);
+  // Ensure Daily News renders at the bottom by sorting sections
+  const sectionsSorted = Array.isArray(newsletterData.sections)
+    ? [...newsletterData.sections].sort((a, b) => {
+        const aIsDaily = a && a.dailyNews ? 1 : 0;
+        const bIsDaily = b && b.dailyNews ? 1 : 0;
+        return aIsDaily - bIsDaily;
+      })
+    : [];
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -411,7 +419,7 @@ function generateNewsletterHTML(newsletterData) {
         </header>
 
         <main class="newsletter-content">
-            ${newsletterData.sections.map(section => `
+            ${sectionsSorted.map(section => `
                 <section class="newsletter-section">
                     <h2 class="section-title">${section.title}</h2>
                     ${section.communityNews ? `

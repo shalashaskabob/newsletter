@@ -357,6 +357,28 @@ function generateNewsletterHTML(newsletterData) {
                             `).join('')}
                         </div>
                     ` : ''}
+                    ${section.dailyNews ? `
+                        <div class="daily-news-grid">
+                            ${['monday','tuesday','wednesday','thursday','friday'].map((dayKey) => {
+                                const items = (section.dailyNews && section.dailyNews[dayKey]) || [];
+                                const label = dayKey.charAt(0).toUpperCase() + dayKey.slice(1);
+                                return `
+                                <div class=\"daily-news-item\">
+                                  <div class=\"daily-news-day\">${label}</div>
+                                  <ul class=\"daily-news-items\">
+                                    ${items.length ? items.map((it) => `
+                                      <li class=\"daily-news-item\">
+                                        <div class=\"daily-news-headline\">${it.headline || ''}</div>
+                                        ${it.details ? `<div class=\\"daily-news-details\\">${it.details}</div>` : ''}
+                                      </li>
+                                    `).join('') : `
+                                      <li class=\"daily-news-item\"><div class=\"daily-news-headline\" style=\"color: var(--text-muted); font-style: italic;\">No news items for this day</div></li>
+                                    `}
+                                  </ul>
+                                </div>`
+                            }).join('')}
+                        </div>
+                    ` : ''}
                     ${section.newsItems ? `
                         <div class="community-news-list">
                             ${section.newsItems.map(news => `

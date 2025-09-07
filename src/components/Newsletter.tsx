@@ -243,7 +243,7 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
               </div>
             )}
 
-            {/* Community News Section */
+            {/* Community News Section */}
             {section.communityNews && renderCommunityNews(section.communityNews)}
 
             {/* Daily News Section */}

@@ -15,6 +15,7 @@ app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 // Persistent publish directory on Render
 const PUBLISH_DIR = process.env.PUBLISH_DIR || '/var/data/published';
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || '';
 try {
   fs.mkdirSync(PUBLISH_DIR, { recursive: true });
 } catch (e) {
@@ -245,7 +246,8 @@ app.post('/api/publish', async (req, res) => {
         if (resp.ok) {
           const ab = await resp.arrayBuffer();
           fs.writeFileSync(pngPath, Buffer.from(new Uint8Array(ab)));
-          ogImageUrl = `${req.protocol}://${req.get('host')}/published/${pngName}`;
+          const baseUrl = PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+          ogImageUrl = `${baseUrl}/published/${pngName}`;
         }
       }
     } catch (e) {
@@ -253,7 +255,8 @@ app.post('/api/publish', async (req, res) => {
     }
 
     // 3) Inject Open Graph/Twitter meta tags
-    const canonical = `${req.protocol}://${req.get('host')}/published/${filename}`;
+    const baseUrl = PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const canonical = `${baseUrl}/published/${filename}`;
     const escape = (s) => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
     const ogTitle = escape(newsletterData.title);
     const ogDesc = escape(newsletterData.subtitle || newsletterData.weekRange || '');
@@ -273,8 +276,8 @@ app.post('/api/publish', async (req, res) => {
 
     // 4) Write the HTML file
     fs.writeFileSync(filePath, injected, 'utf8');
-    const url = `/published/${filename}`;
-    return res.json({ id, url, image: ogImageUrl });
+    const url = canonical;
+    return res.json({ id, url, image: ogImageUrl, baseUrl });
   } catch (err) {
     console.error('Failed to publish newsletter:', err);
     return res.status(500).json({ error: 'Failed to publish newsletter' });

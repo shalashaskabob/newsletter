@@ -462,7 +462,7 @@ function generateNewsletterHTML(newsletterData) {
                             ${section.communityNews.map(news => `
                                 <div class="community-news-item">
                                     <div class="community-news-title">${news.title}</div>
-                                    <div class="community-news-content">${news.content}</div>
+                                    <div class="community-news-content">${news.description || news.content || ''}</div>
                                 </div>
                             `).join('')}
                         </div>

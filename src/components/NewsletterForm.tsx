@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NewsletterData, TraderTrade, TraderOfWeek, DailyNews, DailyNewsItem, CommunityNewsItem, NewsItem } from '../types/newsletter';
+import RichText from './RichText';
 
 interface NewsletterFormProps {
   onSubmit: (data: NewsletterData) => void;

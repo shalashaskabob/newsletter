@@ -8,6 +8,41 @@ interface NewsletterFormProps {
 }
 
 const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }) => {
+  // Helper: compress an image file and return a data URL
+  const fileToDataUrlCompressed = (file: File, maxWidth = 1400, maxHeight = 1400, quality = 0.9): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      try {
+        const img = new Image();
+        const reader = new FileReader();
+        reader.onload = () => {
+          img.onload = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              let { width, height } = img;
+              const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
+              width = Math.round(width * ratio);
+              height = Math.round(height * ratio);
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              if (!ctx) return reject(new Error('Canvas not supported'));
+              ctx.drawImage(img, 0, 0, width, height);
+              const dataUrl = canvas.toDataURL('image/jpeg', quality);
+              resolve(dataUrl);
+            } catch (err) {
+              reject(err);
+            }
+          };
+          img.onerror = (e) => reject(new Error('Image load failed'));
+          img.src = reader.result as string;
+        };
+        reader.onerror = (e) => reject(new Error('File read failed'));
+        reader.readAsDataURL(file);
+      } catch (e) {
+        reject(e as Error);
+      }
+    });
+  };
   // Load saved data from localStorage
   const loadSavedFormData = () => {
     try {
@@ -221,9 +256,13 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
   const onPickCustomImage: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setNewCustom(prev => ({ ...prev, imageDataUrl: reader.result as string }));
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await fileToDataUrlCompressed(file);
+      setNewCustom(prev => ({ ...prev, imageDataUrl: dataUrl }));
+    } catch (err) {
+      console.error('Failed to process image', err);
+      alert('Could not process image. Please try a different image.');
+    }
   };
 
   const handleSubmit = () => {

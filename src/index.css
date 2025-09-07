@@ -1,3 +1,5 @@
+@import 'react-quill/dist/quill.snow.css';
+
 :root {
   /* KL Brand Colors - Dark Mode */
   --primary-color: #d4af37;

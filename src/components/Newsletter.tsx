@@ -89,7 +89,7 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
             {item.type}
           </div>
           <h3 className="community-news-title">{item.title}</h3>
-          <p className="community-news-description">{item.description}</p>
+          <p className="community-news-description" dangerouslySetInnerHTML={{ __html: item.description }} />
           {item.link && (
             <a href={item.link} className="community-news-link" target="_blank" rel="noopener noreferrer">
               Read More →
@@ -236,12 +236,7 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
               </article>
             ))}
 
-            {/* Trader Trades Section */}
-            {section.traderTrades && (
-              <div className="trades-grid">
-                {section.traderTrades.map(renderTradeCard)}
-              </div>
-            )}
+            {/* Trader Trades Section removed per request */}
 
             {/* Community News Section */}
             {section.communityNews && renderCommunityNews(section.communityNews)}
@@ -253,10 +248,12 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
             {section.newsItems && renderNews(section.newsItems)}
 
             {/* Custom Section */}
-            {section.customHtml && (
+            {(section.customHtml || section.imageDataUrl) && (
               <div className="community-news-container">
                 <div className="community-news-item">
-                  <div className="community-news-description" dangerouslySetInnerHTML={{ __html: section.customHtml }} />
+                  {section.customHtml && (
+                    <div className="community-news-description" dangerouslySetInnerHTML={{ __html: section.customHtml }} />
+                  )}
                   {section.imageDataUrl && (
                     <div style={{marginTop:'12px'}}>
                       <img src={section.imageDataUrl} alt="section" style={{maxWidth:'100%', borderRadius:'12px'}} />
@@ -266,8 +263,7 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
               </div>
             )}
 
-            {/* Trader of the Week Section */}
-            {section.traderOfWeek && renderTraderOfWeek(section.traderOfWeek)}
+            {/* Trader of the Week Section removed per request */}
           </section>
         ))}
       </main>

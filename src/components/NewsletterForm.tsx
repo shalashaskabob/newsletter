@@ -47,28 +47,9 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     }
   );
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'trades' | 'trader-spotlight' | 'community-news' | 'news' | 'custom' | 'daily-news'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'community-news' | 'news' | 'custom' | 'daily-news'>('basic');
 
-  // Trade form state
-  const [newTrade, setNewTrade] = useState<Partial<TraderTrade>>({
-    traderName: '',
-    symbol: '',
-    pointsGained: 0,
-    date: '',
-    modelsUsed: '',
-    tradeLinks: '',
-    notes: ''
-  });
-
-  // Trader of the week form state
-  const [traderOfWeek, setTraderOfWeek] = useState<Partial<TraderOfWeek>>({
-    traderName: '',
-    timeInKL: '',
-    cashbackEarned: 0,
-    favoriteSymbol: '',
-    favoriteTradingModel: '',
-    testimonial: ''
-  });
+  // Removed trades and trader of week state per request
 
   // Daily news form state
   const [dailyNews, setDailyNews] = useState<DailyNews>({
@@ -110,20 +91,12 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
   const [customSections, setCustomSections] = useState<Array<{ id: string; title: string; customHtml?: string; imageDataUrl?: string }>>([]);
   const [newCustom, setNewCustom] = useState<{ title: string; customHtml: string; imageDataUrl?: string }>({ title: '', customHtml: '' });
 
-  const [trades, setTrades] = useState<TraderTrade[]>([]);
+  // Removed trades list per request
 
   // Load saved data on component mount
   useEffect(() => {
     try {
-      const savedTrades = localStorage.getItem('newsletter-trades');
-      if (savedTrades) {
-        setTrades(JSON.parse(savedTrades));
-      }
-
-      const savedTraderOfWeek = localStorage.getItem('newsletter-trader-of-week');
-      if (savedTraderOfWeek) {
-        setTraderOfWeek(JSON.parse(savedTraderOfWeek));
-      }
+      // Removed trades and trader of week load
 
       const savedDailyNews = localStorage.getItem('newsletter-daily-news');
       if (savedDailyNews) {
@@ -154,13 +127,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     localStorage.setItem('newsletter-form-basic', JSON.stringify(formData));
   }, [formData]);
 
-  useEffect(() => {
-    localStorage.setItem('newsletter-trades', JSON.stringify(trades));
-  }, [trades]);
-
-  useEffect(() => {
-    localStorage.setItem('newsletter-trader-of-week', JSON.stringify(traderOfWeek));
-  }, [traderOfWeek]);
+  // Removed trades/trader-of-week persistence
 
   useEffect(() => {
     localStorage.setItem('newsletter-daily-news', JSON.stringify(dailyNews));
@@ -178,31 +145,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     localStorage.setItem('newsletter-custom', JSON.stringify(customSections));
   }, [customSections]);
 
-  const addTrade = () => {
-    if (newTrade.traderName && newTrade.symbol && newTrade.date && newTrade.modelsUsed) {
-      const trade: TraderTrade = {
-        id: Date.now().toString(),
-        traderName: newTrade.traderName!,
-        symbol: newTrade.symbol!,
-        pointsGained: newTrade.pointsGained || 0,
-        date: newTrade.date!,
-        modelsUsed: newTrade.modelsUsed!,
-        tradeLinks: newTrade.tradeLinks || undefined,
-        notes: newTrade.notes || undefined
-      };
-
-      setTrades([...trades, trade]);
-      setNewTrade({
-        traderName: '',
-        symbol: '',
-        pointsGained: 0,
-        date: '',
-        modelsUsed: '',
-        tradeLinks: '',
-        notes: ''
-      });
-    }
-  };
+  // Removed trade add logic
 
   const addNewsItem = (day: keyof DailyNews) => {
     const headline = newNewsItems[day].trim();
@@ -287,31 +230,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     
     const sections = [];
     
-    // Add trades section if trades exist
-    if (trades.length > 0) {
-      sections.push({
-        id: 'official-trades',
-        title: '🏆 Official KL Traders Performance',
-        traderTrades: trades
-      });
-    }
-
-    // Add trader of the week if filled
-    if (traderOfWeek.traderName && traderOfWeek.testimonial) {
-      sections.push({
-        id: 'trader-of-week',
-        title: '⭐ KL Trader of the Week',
-        traderOfWeek: {
-          id: 'trader-spotlight',
-          traderName: traderOfWeek.traderName!,
-          timeInKL: traderOfWeek.timeInKL!,
-          cashbackEarned: traderOfWeek.cashbackEarned!,
-          favoriteSymbol: traderOfWeek.favoriteSymbol!,
-          favoriteTradingModel: traderOfWeek.favoriteTradingModel!,
-          testimonial: traderOfWeek.testimonial!
-        }
-      });
-    }
+    // Removed KL Traders and Trader of the Week sections
 
     // Add community news section if community news exist
     if (communityNews.length > 0) {
@@ -357,11 +276,12 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
   const clearAllData = () => {
     if (confirm('Are you sure you want to clear all saved form data? This cannot be undone.')) {
       localStorage.removeItem('newsletter-form-basic');
-      localStorage.removeItem('newsletter-trades');
-      localStorage.removeItem('newsletter-trader-of-week');
+      // Cleared keys removed per request
       localStorage.removeItem('newsletter-daily-news');
       localStorage.removeItem('newsletter-community-news');
-      
+      localStorage.removeItem('newsletter-news');
+      localStorage.removeItem('newsletter-custom');
+
       // Reset all form states
       setFormData({
         title: 'KL WEEKLY REPORT',
@@ -386,18 +306,16 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
           }
         }
       });
-      setTrades([]);
-      setTraderOfWeek({
-        traderName: '', timeInKL: '', cashbackEarned: 0, favoriteSymbol: '', favoriteTradingModel: '', testimonial: ''
-      });
+      // Removed traders and trader-of-week resets
       setDailyNews({ monday: [], tuesday: [], wednesday: [], thursday: [], friday: [] });
       setCommunityNews([]);
-      setNewTrade({
-        traderName: '', symbol: '', pointsGained: 0, date: '', modelsUsed: '', tradeLinks: '', notes: ''
-      });
+      setNewsItems([]);
+      setCustomSections([]);
       setNewCommunityNews({
         title: '', description: '', type: 'announcement', date: '', author: '', link: ''
       });
+      setNewNews({ title: '', description: '', link: '' });
+      setNewCustom({ title: '', customHtml: '' });
     }
   };
 
@@ -427,18 +345,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
         >
           Basic Info
         </button>
-        <button 
-          className={`tab ${activeTab === 'trades' ? 'active' : ''}`}
-          onClick={() => setActiveTab('trades')}
-        >
-          Kingline Traders ({trades.length})
-        </button>
-        <button 
-          className={`tab ${activeTab === 'trader-spotlight' ? 'active' : ''}`}
-          onClick={() => setActiveTab('trader-spotlight')}
-        >
-          Trader Spotlight
-        </button>
+        
         <button 
           className={`tab ${activeTab === 'community-news' ? 'active' : ''}`}
           onClick={() => setActiveTab('community-news')}
@@ -595,7 +502,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                 {newsItems.map((item, index) => (
                   <div key={item.id} className="community-news-preview">
                     <div className="community-news-preview-title">{item.title}</div>
-                    <div className="community-news-preview-description">{item.description}</div>
+                    <div className="community-news-preview-description" dangerouslySetInnerHTML={{ __html: item.description || '' }} />
                     {item.link && (
                       <div className="community-news-preview-meta">
                         <a href={item.link} target="_blank" rel="noopener noreferrer" className="read-more">Read More →</a>
@@ -615,173 +522,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
           </div>
         )}
 
-        {activeTab === 'trades' && (
-          <div className="form-section">
-            <h3>Kingline Traders Performance</h3>
-            <div className="trade-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Trader Name</label>
-                  <input
-                    type="text"
-                    value={newTrade.traderName}
-                    onChange={(e) => setNewTrade({...newTrade, traderName: e.target.value})}
-                    placeholder="JD_Astra"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Symbol</label>
-                  <input
-                    type="text"
-                    value={newTrade.symbol}
-                    onChange={(e) => setNewTrade({...newTrade, symbol: e.target.value.toUpperCase()})}
-                    placeholder="MNQ"
-                  />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Points Gained</label>
-                  <input
-                    type="number"
-                    value={newTrade.pointsGained}
-                    onChange={(e) => setNewTrade({...newTrade, pointsGained: parseFloat(e.target.value)})}
-                    placeholder="150"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Date</label>
-                  <input
-                    type="text"
-                    value={newTrade.date}
-                    onChange={(e) => setNewTrade({...newTrade, date: e.target.value})}
-                    placeholder="Dec 15, 2024"
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Models Used</label>
-                <input
-                  type="text"
-                  value={newTrade.modelsUsed}
-                  onChange={(e) => setNewTrade({...newTrade, modelsUsed: e.target.value})}
-                  placeholder="Q3 Inverse"
-                />
-              </div>
-              <div className="form-group">
-                <label>Links to Trades (Optional)</label>
-                <input
-                  type="url"
-                  value={newTrade.tradeLinks}
-                  onChange={(e) => setNewTrade({...newTrade, tradeLinks: e.target.value})}
-                  placeholder="https://twitter.com/username/status/123456789"
-                />
-              </div>
-              <div className="form-group">
-                <label>Notes (Optional)</label>
-                <textarea
-                  value={newTrade.notes}
-                  onChange={(e) => setNewTrade({...newTrade, notes: e.target.value})}
-                  placeholder="Perfect setup with strong momentum confirmation..."
-                  rows={3}
-                />
-              </div>
-              <button type="button" onClick={addTrade} className="btn btn-secondary">
-                Add Trade
-              </button>
-            </div>
-
-            {trades.length > 0 && (
-              <div className="trades-list">
-                <h4>Added Trades ({trades.length})</h4>
-                {trades.map((trade, index) => (
-                  <div key={trade.id} className="trade-preview">
-                    <div className="trade-preview-header">
-                      <span className="trade-symbol">{trade.symbol}</span>
-                      <span className={`trade-pnl ${trade.pointsGained >= 0 ? 'positive' : 'negative'}`}>
-                        {trade.pointsGained >= 0 ? '+' : ''}{trade.pointsGained} pts
-                      </span>
-                    </div>
-                    <div className="trade-preview-details">
-                      {trade.traderName} • {trade.modelsUsed} • {trade.date}
-                    </div>
-                    <button 
-                      type="button" 
-                      onClick={() => setTrades(trades.filter((_, i) => i !== index))}
-                      className="remove-btn"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'trader-spotlight' && (
-          <div className="form-section">
-            <h3>Trader of the Week Spotlight</h3>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Trader Name</label>
-                <input
-                  type="text"
-                  value={traderOfWeek.traderName}
-                  onChange={(e) => setTraderOfWeek({...traderOfWeek, traderName: e.target.value})}
-                  placeholder=""
-                />
-              </div>
-              <div className="form-group">
-                <label>Time in KL</label>
-                <input
-                  type="text"
-                  value={traderOfWeek.timeInKL}
-                  onChange={(e) => setTraderOfWeek({...traderOfWeek, timeInKL: e.target.value})}
-                  placeholder=""
-                />
-              </div>
-            </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Cashback Earned</label>
-                <input
-                  type="number"
-                  value={traderOfWeek.cashbackEarned}
-                  onChange={(e) => setTraderOfWeek({...traderOfWeek, cashbackEarned: parseFloat(e.target.value)})}
-                  placeholder=""
-                />
-              </div>
-              <div className="form-group">
-                <label>Favorite Symbol</label>
-                <input
-                  type="text"
-                  value={traderOfWeek.favoriteSymbol}
-                  onChange={(e) => setTraderOfWeek({...traderOfWeek, favoriteSymbol: e.target.value.toUpperCase()})}
-                  placeholder=""
-                />
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Favorite Trading Model</label>
-              <input
-                type="text"
-                value={traderOfWeek.favoriteTradingModel}
-                onChange={(e) => setTraderOfWeek({...traderOfWeek, favoriteTradingModel: e.target.value})}
-                placeholder=""
-              />
-            </div>
-            <div className="form-group">
-              <label>Testimonial/Anything to Say</label>
-              <textarea
-                value={traderOfWeek.testimonial}
-                onChange={(e) => setTraderOfWeek({...traderOfWeek, testimonial: e.target.value})}
-                placeholder="KL has completely transformed my trading journey. The community support and educational resources are unmatched..."
-                rows={4}
-              />
-            </div>
-          </div>
-        )}
+        
 
         {activeTab === 'community-news' && (
           <div className="form-section">

@@ -58,45 +58,23 @@ function App() {
     try {
       // Load current form data from localStorage
       const savedFormData = localStorage.getItem('newsletter-form-basic');
-      const savedTrades = localStorage.getItem('newsletter-trades');
-      const savedTraderOfWeek = localStorage.getItem('newsletter-trader-of-week');
+      // Removed trades and trader of the week per request
       const savedDailyNews = localStorage.getItem('newsletter-daily-news');
       const savedCommunityNews = localStorage.getItem('newsletter-community-news');
+      const savedNews = localStorage.getItem('newsletter-news');
+      const savedCustom = localStorage.getItem('newsletter-custom');
 
       const formData = savedFormData ? JSON.parse(savedFormData) : sampleNewsletterData;
-      const trades = savedTrades ? JSON.parse(savedTrades) : [];
-      const traderOfWeek = savedTraderOfWeek ? JSON.parse(savedTraderOfWeek) : null;
+      // Removed trades and trader of the week per request
       const dailyNews = savedDailyNews ? JSON.parse(savedDailyNews) : null;
       const communityNews = savedCommunityNews ? JSON.parse(savedCommunityNews) : [];
+      const newsItems = savedNews ? JSON.parse(savedNews) : [];
+      const customSections = savedCustom ? JSON.parse(savedCustom) : [];
 
       // Build sections array
       const sections = [];
 
-      // Add trades section if trades exist
-      if (trades.length > 0) {
-        sections.push({
-          id: 'official-trades',
-          title: '🏆 Official KL Traders Performance',
-          traderTrades: trades
-        });
-      }
-
-      // Add trader of the week if filled
-      if (traderOfWeek && traderOfWeek.traderName && traderOfWeek.testimonial) {
-        sections.push({
-          id: 'trader-of-week',
-          title: '⭐ KL Trader of the Week',
-          traderOfWeek: {
-            id: 'trader-spotlight',
-            traderName: traderOfWeek.traderName,
-            timeInKL: traderOfWeek.timeInKL,
-            cashbackEarned: traderOfWeek.cashbackEarned,
-            favoriteSymbol: traderOfWeek.favoriteSymbol,
-            favoriteTradingModel: traderOfWeek.favoriteTradingModel,
-            testimonial: traderOfWeek.testimonial
-          }
-        });
-      }
+      // Removed KL Traders and Trader of the Week sections
 
       // Add community news section if community news exist
       if (communityNews.length > 0) {
@@ -104,6 +82,15 @@ function App() {
           id: 'community-news',
           title: '🏛️ Kingline Community News',
           communityNews: communityNews
+        });
+      }
+
+      // Add News section if exists
+      if (newsItems.length > 0) {
+        sections.push({
+          id: 'news',
+          title: '🗞️ News',
+          newsItems
         });
       }
 
@@ -117,6 +104,13 @@ function App() {
             dailyNews: dailyNews
           });
         }
+      }
+
+      // Add custom sections
+      if (Array.isArray(customSections) && customSections.length > 0) {
+        customSections.forEach((cs: any) => {
+          sections.push({ id: `custom-${cs.id}`, title: cs.title, customHtml: cs.customHtml, imageDataUrl: cs.imageDataUrl });
+        });
       }
 
       // Create newsletter data

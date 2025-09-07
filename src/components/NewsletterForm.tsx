@@ -546,7 +546,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                     type="text"
                     value={newTrade.traderName}
                     onChange={(e) => setNewTrade({...newTrade, traderName: e.target.value})}
-                    placeholder="Alex Chen"
+                    placeholder="JD_Astra"
                   />
                 </div>
                 <div className="form-group">
@@ -555,7 +555,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                     type="text"
                     value={newTrade.symbol}
                     onChange={(e) => setNewTrade({...newTrade, symbol: e.target.value.toUpperCase()})}
-                    placeholder="NVDA"
+                    placeholder="MNQ"
                   />
                 </div>
               </div>
@@ -585,7 +585,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                   type="text"
                   value={newTrade.modelsUsed}
                   onChange={(e) => setNewTrade({...newTrade, modelsUsed: e.target.value})}
-                  placeholder="Momentum, Breakout"
+                  placeholder="Q3 Inverse"
                 />
               </div>
               <div className="form-group">
@@ -649,7 +649,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                   type="text"
                   value={traderOfWeek.traderName}
                   onChange={(e) => setTraderOfWeek({...traderOfWeek, traderName: e.target.value})}
-                  placeholder="Marcus Thompson"
+                  placeholder=""
                 />
               </div>
               <div className="form-group">
@@ -658,7 +658,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                   type="text"
                   value={traderOfWeek.timeInKL}
                   onChange={(e) => setTraderOfWeek({...traderOfWeek, timeInKL: e.target.value})}
-                  placeholder="8 months"
+                  placeholder=""
                 />
               </div>
             </div>
@@ -669,7 +669,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                   type="number"
                   value={traderOfWeek.cashbackEarned}
                   onChange={(e) => setTraderOfWeek({...traderOfWeek, cashbackEarned: parseFloat(e.target.value)})}
-                  placeholder="2500"
+                  placeholder=""
                 />
               </div>
               <div className="form-group">
@@ -678,7 +678,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                   type="text"
                   value={traderOfWeek.favoriteSymbol}
                   onChange={(e) => setTraderOfWeek({...traderOfWeek, favoriteSymbol: e.target.value.toUpperCase()})}
-                  placeholder="TSLA"
+                  placeholder=""
                 />
               </div>
             </div>
@@ -688,7 +688,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                 type="text"
                 value={traderOfWeek.favoriteTradingModel}
                 onChange={(e) => setTraderOfWeek({...traderOfWeek, favoriteTradingModel: e.target.value})}
-                placeholder="Momentum Breakout"
+                placeholder=""
               />
             </div>
             <div className="form-group">

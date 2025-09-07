@@ -252,6 +252,20 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
             {/* News Section (simple) */}
             {section.newsItems && renderNews(section.newsItems)}
 
+            {/* Custom Section */}
+            {section.customHtml && (
+              <div className="community-news-container">
+                <div className="community-news-item">
+                  <div className="community-news-description" dangerouslySetInnerHTML={{ __html: section.customHtml }} />
+                  {section.imageDataUrl && (
+                    <div style={{marginTop:'12px'}}>
+                      <img src={section.imageDataUrl} alt="section" style={{maxWidth:'100%', borderRadius:'12px'}} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Trader of the Week Section */}
             {section.traderOfWeek && renderTraderOfWeek(section.traderOfWeek)}
           </section>

@@ -479,6 +479,15 @@ function generateNewsletterHTML(newsletterData) {
                             `).join('')}
                         </div>
                     ` : ''}
+
+                    ${section.customHtml || section.imageDataUrl ? `
+                        <div class="community-news-list">
+                            <div class="community-news-item">
+                                ${section.customHtml ? `<div class=\"community-news-content\">${section.customHtml}</div>` : ''}
+                                ${section.imageDataUrl ? `<div style=\"margin-top:12px\"><img src=\"${section.imageDataUrl}\" style=\"max-width:100%; border-radius:12px\" /></div>` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
                 </section>
             `).join('')}
         </main>

@@ -70,6 +70,9 @@ export interface NewsletterSection {
   dailyNews?: DailyNews;
   communityNews?: CommunityNewsItem[];
   newsItems?: NewsItem[];
+  // Custom free-form content
+  customHtml?: string; // formatted HTML (from RTE)
+  imageDataUrl?: string; // optional embedded image (data URL)
 }
 
 export interface NewsletterData {

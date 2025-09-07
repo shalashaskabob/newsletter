@@ -47,7 +47,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     }
   );
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'trades' | 'trader-spotlight' | 'community-news' | 'news' | 'daily-news'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'trades' | 'trader-spotlight' | 'community-news' | 'news' | 'custom' | 'daily-news'>('basic');
 
   // Trade form state
   const [newTrade, setNewTrade] = useState<Partial<TraderTrade>>({
@@ -106,6 +106,10 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     link: ''
   });
 
+  // Custom sections
+  const [customSections, setCustomSections] = useState<Array<{ id: string; title: string; customHtml?: string; imageDataUrl?: string }>>([]);
+  const [newCustom, setNewCustom] = useState<{ title: string; customHtml: string; imageDataUrl?: string }>({ title: '', customHtml: '' });
+
   const [trades, setTrades] = useState<TraderTrade[]>([]);
 
   // Load saved data on component mount
@@ -134,6 +138,11 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       const savedNews = localStorage.getItem('newsletter-news');
       if (savedNews) {
         setNewsItems(JSON.parse(savedNews));
+      }
+
+      const savedCustom = localStorage.getItem('newsletter-custom');
+      if (savedCustom) {
+        setCustomSections(JSON.parse(savedCustom));
       }
     } catch (error) {
       console.error('Error loading saved data:', error);
@@ -164,6 +173,10 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
   useEffect(() => {
     localStorage.setItem('newsletter-news', JSON.stringify(newsItems));
   }, [newsItems]);
+
+  useEffect(() => {
+    localStorage.setItem('newsletter-custom', JSON.stringify(customSections));
+  }, [customSections]);
 
   const addTrade = () => {
     if (newTrade.traderName && newTrade.symbol && newTrade.date && newTrade.modelsUsed) {
@@ -256,6 +269,20 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     }
   };
 
+  const addCustomSection = () => {
+    if (!newCustom.title || (!newCustom.customHtml && !newCustom.imageDataUrl)) return;
+    setCustomSections(prev => [...prev, { id: Date.now().toString(), title: newCustom.title, customHtml: newCustom.customHtml, imageDataUrl: newCustom.imageDataUrl }]);
+    setNewCustom({ title: '', customHtml: '' });
+  };
+
+  const onPickCustomImage: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setNewCustom(prev => ({ ...prev, imageDataUrl: reader.result as string }));
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = () => {
     
     const sections = [];
@@ -303,6 +330,11 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
         newsItems
       });
     }
+
+    // Add custom sections (each as its own block)
+    customSections.forEach(cs => {
+      sections.push({ id: `custom-${cs.id}`, title: cs.title, customHtml: cs.customHtml, imageDataUrl: cs.imageDataUrl });
+    });
 
     // Add daily news section if any day has news items
     const hasNewsItems = Object.values(dailyNews).some(dayItems => dayItems.length > 0);
@@ -420,6 +452,12 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
           News ({newsItems.length})
         </button>
         <button 
+          className={`tab ${activeTab === 'custom' ? 'active' : ''}`}
+          onClick={() => setActiveTab('custom')}
+        >
+          Custom Sections ({customSections.length})
+        </button>
+        <button 
           className={`tab ${activeTab === 'daily-news' ? 'active' : ''}`}
           onClick={() => setActiveTab('daily-news')}
         >
@@ -467,6 +505,48 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                 placeholder="September 1st - 5th, 2024"
               />
             </div>
+          </div>
+        )}
+
+        {activeTab === 'custom' && (
+          <div className="form-section">
+            <h3>Custom Sections</h3>
+            <div className="community-news-form">
+              <div className="form-group">
+                <label>Section Title</label>
+                <input type="text" value={newCustom.title} onChange={(e)=>setNewCustom({...newCustom, title: e.target.value})} placeholder="Cozy Calendar" />
+              </div>
+              <div className="form-group">
+                <label>Formatted Content (optional)</label>
+                <RichText value={newCustom.customHtml} onChange={(html)=>setNewCustom({...newCustom, customHtml: html})} placeholder="Write content..." />
+              </div>
+              <div className="form-group">
+                <label>Image (optional)</label>
+                <input type="file" accept="image/*" onChange={onPickCustomImage} />
+                {newCustom.imageDataUrl && (
+                  <div style={{marginTop: '8px'}}>
+                    <img src={newCustom.imageDataUrl} alt="preview" style={{maxWidth:'100%', borderRadius:'8px'}} />
+                  </div>
+                )}
+              </div>
+              <button type="button" className="btn btn-secondary" onClick={addCustomSection} disabled={!newCustom.title || (!newCustom.customHtml && !newCustom.imageDataUrl)}>Add Custom Section</button>
+            </div>
+
+            {customSections.length>0 && (
+              <div className="community-news-list">
+                <h4>Added Custom Sections ({customSections.length})</h4>
+                {customSections.map((cs, idx)=> (
+                  <div key={cs.id} className="community-news-preview">
+                    <div className="community-news-preview-title">{cs.title}</div>
+                    {cs.customHtml && (<div className="community-news-preview-description" dangerouslySetInnerHTML={{__html: cs.customHtml}} />)}
+                    {cs.imageDataUrl && (<div style={{marginTop:'8px'}}><img src={cs.imageDataUrl} alt="custom" style={{maxWidth:'100%', borderRadius:'8px'}}/></div>)}
+                    <div style={{marginTop:'8px'}}>
+                      <button type="button" className="remove-btn" onClick={()=> setCustomSections(customSections.filter((_,i)=>i!==idx))}>Remove</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

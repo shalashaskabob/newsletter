@@ -380,11 +380,19 @@ function generateNewsletterHTML(newsletterData) {
         .newsletter-content { padding: var(--spacing-8) var(--spacing-6); }
         .newsletter-section { margin-bottom: var(--spacing-8); }
         .section-title { font-size: var(--font-size-2xl); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-4); padding-bottom: var(--spacing-2); border-bottom: 2px solid var(--primary-color); display: inline-block; }
-        /* Daily News grid styles (responsive) */
+        /* Daily News styles */
         .daily-news-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--spacing-4); margin-bottom: var(--spacing-8); }
         @media (max-width: 1400px) { .daily-news-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 900px) { .daily-news-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { .daily-news-grid { grid-template-columns: 1fr; } }
+        .daily-news-pane { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-5); min-width: 0; overflow: hidden; }
+        .daily-news-day { font-size: var(--font-size-lg); font-weight: 600; color: var(--primary-color); margin-bottom: var(--spacing-4); text-align: center; text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: var(--spacing-2); border-bottom: 2px solid var(--primary-color); }
+        .daily-news-items { list-style: none; padding: 0; margin: 0; }
+        .daily-news-item { margin-bottom: var(--spacing-3); padding-left: var(--spacing-4); position: relative; color: var(--text-secondary); line-height: 1.5; font-size: var(--font-size-sm); overflow-wrap: anywhere; word-break: break-word; }
+        .daily-news-item:last-child { margin-bottom: 0; }
+        .daily-news-item:before { content: '•'; color: var(--primary-color); font-weight: bold; position: absolute; left: 0; top: 0; }
+        .daily-news-headline { color: var(--text-primary); font-weight: 500; }
+        .daily-news-details { color: var(--text-muted); font-size: var(--font-size-xs); margin-top: var(--spacing-1); font-style: italic; }
         .community-news-list { display: grid; gap: var(--spacing-4); }
         .community-news-item { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-4); }
         .community-news-title { font-size: var(--font-size-base); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-2); }
@@ -420,7 +428,7 @@ function generateNewsletterHTML(newsletterData) {
                                 const items = (section.dailyNews && section.dailyNews[dayKey]) || [];
                                 const label = dayKey.charAt(0).toUpperCase() + dayKey.slice(1);
                                 return `
-                                <div class=\"daily-news-item\">
+                                <div class=\"daily-news-pane\"> 
                                   <div class=\"daily-news-day\">${label}</div>
                                   <ul class=\"daily-news-items\">
                                     ${items.length ? items.map((it) => `

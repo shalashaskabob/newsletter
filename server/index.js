@@ -127,14 +127,14 @@ function generateNewsletterHTML(newsletterData) {
 
           /* Typography */
           --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-          --font-size-xs: 0.75rem;
-          --font-size-sm: 0.875rem;
-          --font-size-base: 1rem;
-          --font-size-lg: 1.125rem;
-          --font-size-xl: 1.25rem;
-          --font-size-2xl: 1.5rem;
-          --font-size-3xl: 1.875rem;
-          --font-size-4xl: 2.25rem;
+          --font-size-xs: 0.875rem;
+          --font-size-sm: 1rem;
+          --font-size-base: 1.2rem;
+          --font-size-lg: 1.35rem;
+          --font-size-xl: 1.6rem;
+          --font-size-2xl: 1.9rem;
+          --font-size-3xl: 2.3rem;
+          --font-size-4xl: 2.8rem;
 
           /* Spacing */
           --spacing-1: 0.25rem;

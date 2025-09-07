@@ -20,7 +20,7 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
       {items.map((item) => (
         <div key={item.id} className="community-news-item">
           <h3 className="community-news-title">{item.title}</h3>
-          <p className="community-news-description">{item.description}</p>
+          <p className="community-news-description" dangerouslySetInnerHTML={{ __html: item.description }} />
           {item.link && (
             <a href={item.link} className="community-news-link" target="_blank" rel="noopener noreferrer">
               Read More →

@@ -488,11 +488,10 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
               </div>
               <div className="form-group">
                 <label>Description</label>
-                <textarea
+                <RichText
                   value={newNews.description || ''}
-                  onChange={(e) => setNewNews({ ...newNews, description: e.target.value })}
-                  placeholder="Short description"
-                  rows={3}
+                  onChange={(html) => setNewNews({ ...newNews, description: html })}
+                  placeholder="Write description with formatting..."
                 />
               </div>
               <div className="form-group">
@@ -723,11 +722,10 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
               
               <div className="form-group">
                 <label>Description</label>
-                <textarea
-                  value={newCommunityNews.description}
-                  onChange={(e) => setNewCommunityNews({...newCommunityNews, description: e.target.value})}
-                  placeholder="Join our monthly trading challenge and compete with fellow KL members for prizes and recognition..."
-                  rows={3}
+                <RichText
+                  value={newCommunityNews.description || ''}
+                  onChange={(html) => setNewCommunityNews({ ...newCommunityNews, description: html })}
+                  placeholder="Write description with formatting..."
                 />
               </div>
 

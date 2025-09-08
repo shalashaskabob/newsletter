@@ -205,13 +205,11 @@ export const sampleNewsletterData: NewsletterData = {
     }
   ],
   footer: {
-    companyName: "KL Trading Community",
-    websiteUrl: "https://kltrading.com",
-    unsubscribeUrl: "https://kltrading.com/unsubscribe",
+    companyName: "Kingline Capital",
+    websiteUrl: "https://www.kinglinecapital.com/",
     socialLinks: {
-      twitter: "https://twitter.com/kltrading",
-      discord: "https://discord.gg/kltrading",
-      linkedin: "https://linkedin.com/company/kltrading"
+      twitter: "https://x.com/KinglineCapital",
+      discord: "https://discord.gg/P3VB6MpR"
     }
   }
 };

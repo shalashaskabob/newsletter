@@ -275,8 +275,7 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
       {/* Footer */}
       <footer className="newsletter-footer">
         <div className="footer-text">
-          <p>© 2024 {data.footer.companyName}. All rights reserved.</p>
-          <p>You're receiving this because you subscribed to our newsletter.</p>
+          <p>© 2025 {data.footer.companyName}. All rights reserved.</p>
         </div>
         
         <div className="footer-links">
@@ -287,22 +286,12 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
           )}
           {data.footer.socialLinks?.twitter && (
             <a href={data.footer.socialLinks.twitter} className="footer-link">
-              Twitter
-            </a>
-          )}
-          {data.footer.socialLinks?.linkedin && (
-            <a href={data.footer.socialLinks.linkedin} className="footer-link">
-              LinkedIn
+              X
             </a>
           )}
           {data.footer.socialLinks?.discord && (
             <a href={data.footer.socialLinks.discord} className="footer-link">
               Discord
-            </a>
-          )}
-          {data.footer.unsubscribeUrl && (
-            <a href={data.footer.unsubscribeUrl} className="footer-link">
-              Unsubscribe
             </a>
           )}
         </div>

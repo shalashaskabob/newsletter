@@ -410,6 +410,12 @@ function generateNewsletterHTML(newsletterData) {
         .community-news-content { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; }
         .community-news-link { display: inline-block; margin-top: var(--spacing-3); background: var(--primary-color); color: var(--bg-primary); text-decoration: none; font-weight: 600; padding: 8px 12px; border-radius: var(--radius-md); }
         .community-news-link:hover { background: var(--primary-dark); color: var(--bg-primary); }
+        /* Footer */
+        .newsletter-footer { border-top: 1px solid var(--border-color); padding: var(--spacing-8) var(--spacing-6); color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-4); flex-wrap: wrap; }
+        .footer-text p { margin: 0; }
+        .footer-links { display: flex; gap: var(--spacing-4); align-items: center; }
+        .footer-link { color: var(--text-secondary); text-decoration: none; border: 1px solid var(--border-color); padding: 6px 10px; border-radius: var(--radius-md); }
+        .footer-link:hover { color: var(--bg-primary); background: var(--primary-color); border-color: var(--primary-color); }
     </style>
 </head>
 <body>
@@ -480,6 +486,16 @@ function generateNewsletterHTML(newsletterData) {
                 </section>
             `).join('')}
         </main>
+        <footer class="newsletter-footer">
+          <div class="footer-text">
+            <p>© 2025 ${(newsletterData.footer && newsletterData.footer.companyName) || ''}. All rights reserved.</p>
+          </div>
+          <div class="footer-links">
+            ${newsletterData.footer && newsletterData.footer.websiteUrl ? `<a href="${newsletterData.footer.websiteUrl}" class="footer-link" target="_blank" rel="noopener noreferrer">Visit Website</a>` : ''}
+            ${newsletterData.footer && newsletterData.footer.socialLinks && newsletterData.footer.socialLinks.twitter ? `<a href="${newsletterData.footer.socialLinks.twitter}" class="footer-link" target="_blank" rel="noopener noreferrer">X</a>` : ''}
+            ${newsletterData.footer && newsletterData.footer.socialLinks && newsletterData.footer.socialLinks.discord ? `<a href="${newsletterData.footer.socialLinks.discord}" class="footer-link" target="_blank" rel="noopener noreferrer">Discord</a>` : ''}
+          </div>
+        </footer>
     </div>
 </body>
 </html>

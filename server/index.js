@@ -562,21 +562,83 @@ function generateNewsletterHTML(newsletterData, opts) {
   (function(){
     var nav = document.querySelector('.top-nav');
     if (!nav) return;
-    var buttons = nav.querySelectorAll('.tab-btn');
-    buttons.forEach(function(btn, idx){
-      btn.addEventListener('click', function(){
-        var targetId = btn.getAttribute('data-target');
-        var el = document.getElementById(targetId);
-        if (el) {
-          window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
-          buttons.forEach(function(b){ b.classList.remove('active'); });
-          btn.classList.add('active');
-        }
+    var tabs = Array.from(nav.querySelectorAll('.tab-btn'));
+
+    // If tabs are anchors, enable in-page navigation without full reload
+    var isLinkTabs = tabs.length && tabs[0].tagName === 'A';
+
+    function setActiveByUrl(url){
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      var match = tabs.find(function(t){
+        if (t.tagName !== 'A') return false;
+        var href = t.getAttribute('href');
+        return href && (url.endsWith(href) || url.indexOf('/' + href) !== -1);
       });
-      if (idx === 0) btn.classList.add('active');
-    });
+      (match || tabs[0]) && (match || tabs[0]).classList.add('active');
+    }
+
+    if (isLinkTabs) {
+      setActiveByUrl(location.pathname);
+      tabs.forEach(function(a){
+        a.addEventListener('click', function(e){
+          // Only intercept same-folder links
+          var href = a.getAttribute('href');
+          if (!href || href.indexOf('http') === 0) return; 
+          e.preventDefault();
+          fetch(href).then(function(r){ return r.text(); }).then(function(html){
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(html, 'text/html');
+            var newMain = doc.querySelector('.newsletter-content');
+            var newTitle = doc.querySelector('title');
+            var curMain = document.querySelector('.newsletter-content');
+            if (newMain && curMain) {
+              curMain.innerHTML = newMain.innerHTML;
+            }
+            if (newTitle) {
+              document.title = newTitle.textContent || document.title;
+            }
+            history.pushState({}, '', href);
+            setActiveByUrl(location.pathname);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }).catch(function(){
+            // Fallback to full navigation if fetch fails
+            location.href = href;
+          });
+        });
+      });
+
+      window.addEventListener('popstate', function(){
+        // On back/forward, reload current page content via fetch
+        var current = location.pathname.split('/').pop() || 'index.html';
+        fetch(current).then(function(r){ return r.text(); }).then(function(html){
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(html, 'text/html');
+          var newMain = doc.querySelector('.newsletter-content');
+          var newTitle = doc.querySelector('title');
+          var curMain = document.querySelector('.newsletter-content');
+          if (newMain && curMain) { curMain.innerHTML = newMain.innerHTML; }
+          if (newTitle) { document.title = newTitle.textContent || document.title; }
+          setActiveByUrl(location.pathname);
+          window.scrollTo({ top: 0 });
+        });
+      });
+    } else {
+      // Button-based smooth scroll (single-page fallback)
+      tabs.forEach(function(btn, idx){
+        btn.addEventListener('click', function(){
+          var targetId = btn.getAttribute('data-target');
+          var el = document.getElementById(targetId);
+          if (el) {
+            window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+            tabs.forEach(function(b){ b.classList.remove('active'); });
+            btn.classList.add('active');
+          }
+        });
+        if (idx === 0) btn.classList.add('active');
+      });
+    }
   })();
-</script>
+  </script>
 </body>
 </html>
   `;

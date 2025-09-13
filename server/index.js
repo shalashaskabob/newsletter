@@ -218,70 +218,73 @@ app.post('/api/publish', async (req, res) => {
       return res.status(400).json({ error: 'Newsletter data is required' });
     }
     const id = `${Date.now()}`;
-    const filename = `${id}.html`;
-    const pngName = `${id}.png`;
-    const filePath = path.join(PUBLISH_DIR, filename);
-    const pngPath = path.join(PUBLISH_DIR, pngName);
+    const dir = path.join(PUBLISH_DIR, id);
+    fs.mkdirSync(dir, { recursive: true });
 
-    // 1) Base HTML for the newsletter
-    const htmlContent = generateNewsletterHTML(newsletterData);
+    // Build effective sections list; include Prop Firm News if present
+    const effectiveSections = Array.isArray(newsletterData.sections) ? [...newsletterData.sections] : [];
+    if (Array.isArray(newsletterData.propFirmNews) && newsletterData.propFirmNews.length) {
+      effectiveSections.push({ id: 'prop-firm-news', title: (newsletterData.labels && newsletterData.labels.propFirmNews) || 'Prop Firm News', newsItems: newsletterData.propFirmNews });
+    }
 
-    // 2) Attempt to generate an image for social previews
+    const slugify = (t) => String(t || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    const pages = effectiveSections.map((s) => ({ title: s.title, slug: `section-${slugify(s.title)}`, href: '' }));
+    pages.forEach((p) => { p.href = `${p.slug}.html`; });
+
+    const baseUrl = PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const ogPngPath = path.join(dir, 'og.png');
     let ogImageUrl = '';
     try {
       const screenshotOneApiKey = process.env.SCREENSHOTONE_API_KEY;
       if (screenshotOneApiKey) {
+        const fullHtml = generateNewsletterHTML(newsletterData);
         const resp = await fetch('https://api.screenshotone.com/take', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'image/png' },
-          body: JSON.stringify({
-            access_key: screenshotOneApiKey,
-            html: htmlContent,
-            format: 'png',
-            viewport_width: 1920,
-            viewport_height: 2200,
-            device_scale_factor: 3,
-            full_page: true,
-            delay: 2,
-            block_ads: true,
-            block_trackers: true,
-            block_cookie_banners: true
-          })
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'image/png' },
+          body: JSON.stringify({ access_key: screenshotOneApiKey, html: fullHtml, format: 'png', viewport_width: 1920, viewport_height: 2200, device_scale_factor: 3, full_page: true, delay: 2, block_ads: true, block_trackers: true, block_cookie_banners: true })
         });
         if (resp.ok) {
           const ab = await resp.arrayBuffer();
-          fs.writeFileSync(pngPath, Buffer.from(new Uint8Array(ab)));
-          const baseUrl = PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
-          ogImageUrl = `${baseUrl}/published/${pngName}`;
+          fs.writeFileSync(ogPngPath, Buffer.from(new Uint8Array(ab)));
+          ogImageUrl = `${baseUrl}/published/${id}/og.png`;
         }
       }
-    } catch (e) {
-      console.warn('Social image generation failed:', e?.message);
+    } catch (e) { console.warn('Social image generation failed:', e?.message); }
+
+    const escape = (s) => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    const commonTitle = escape(newsletterData.title);
+    const commonDesc = escape(newsletterData.subtitle || newsletterData.weekRange || '');
+
+    // Write each section page
+    for (const p of pages) {
+      const html = generateNewsletterHTML(newsletterData, { sections: effectiveSections, currentSlug: p.slug, pageLinks: pages.map(q => ({ title: q.title, slug: q.slug, href: q.href })) });
+      const canonical = `${baseUrl}/published/${id}/${p.slug}.html`;
+      const meta = `
+      <link rel="canonical" href="${canonical}">
+      <meta property="og:title" content="${commonTitle} - ${escape(p.title)}">
+      <meta property="og:description" content="${commonDesc}">
+      ${ogImageUrl ? `<meta property=\"og:image\" content=\"${ogImageUrl}\">` : ''}
+      <meta property="og:url" content="${canonical}">
+      <meta property="og:type" content="article">
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="${commonTitle} - ${escape(p.title)}">
+      <meta name="twitter:description" content="${commonDesc}">
+      ${ogImageUrl ? `<meta name=\"twitter:image\" content=\"${ogImageUrl}\">` : ''}
+      `;
+      const injected = html.replace('</head>', `${meta}\n</head>`);
+      fs.writeFileSync(path.join(dir, p.href), injected, 'utf8');
     }
 
-    // 3) Inject Open Graph/Twitter meta tags
-    const baseUrl = PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
-    const canonical = `${baseUrl}/published/${filename}`;
-    const escape = (s) => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-    const ogTitle = escape(newsletterData.title);
-    const ogDesc = escape(newsletterData.subtitle || newsletterData.weekRange || '');
-    const meta = `
-    <link rel="canonical" href="${canonical}">
-    <meta property="og:title" content="${ogTitle}">
-    <meta property="og:description" content="${ogDesc}">
-    ${ogImageUrl ? `<meta property=\"og:image\" content=\"${ogImageUrl}\">` : ''}
-    <meta property="og:url" content="${canonical}">
-    <meta property="og:type" content="article">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${ogTitle}">
-    <meta name="twitter:description" content="${ogDesc}">
-    ${ogImageUrl ? `<meta name=\"twitter:image\" content=\"${ogImageUrl}\">` : ''}
-    `;
-    const injected = htmlContent.replace('</head>', `${meta}\n</head>`);
+    // Create index.html as the first section page
+    if (pages.length) {
+      const first = pages[0];
+      const firstHtml = fs.readFileSync(path.join(dir, first.href), 'utf8');
+      fs.writeFileSync(path.join(dir, 'index.html'), firstHtml, 'utf8');
+    }
 
-    // 4) Write the HTML file
-    fs.writeFileSync(filePath, injected, 'utf8');
-    const url = canonical;
+    const url = `${baseUrl}/published/${id}/${pages[0] ? pages[0].href : 'index.html'}`;
     return res.json({ id, url, image: ogImageUrl, baseUrl });
   } catch (err) {
     console.error('Failed to publish newsletter:', err);
@@ -303,12 +306,13 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
-function generateNewsletterHTML(newsletterData) {
+function generateNewsletterHTML(newsletterData, opts) {
   const fontScale = Number(newsletterData?.fontScale || 1);
   const basePx = Math.round(16 * fontScale);
   // Ensure Daily News renders at the bottom by sorting sections
-  const sectionsSorted = Array.isArray(newsletterData.sections)
-    ? [...newsletterData.sections].sort((a, b) => {
+  const sourceSections = opts && Array.isArray(opts.sections) ? opts.sections : newsletterData.sections;
+  const sectionsSorted = Array.isArray(sourceSections)
+    ? [...sourceSections].sort((a, b) => {
         const aIsDaily = a && a.dailyNews ? 1 : 0;
         const bIsDaily = b && b.dailyNews ? 1 : 0;
         return aIsDaily - bIsDaily;
@@ -454,7 +458,11 @@ function generateNewsletterHTML(newsletterData) {
             ${newsletterData.weekRange ? `<div class="newsletter-week-range" style="font-size: var(--font-size-sm); opacity: 0.8; margin-top: var(--spacing-2);">${newsletterData.weekRange}</div>` : ''}
         </header>
 
-        ${(cotId || cozyId || econId) ? `
+        ${(Array.isArray(opts?.pageLinks) && opts.pageLinks.length) ? `
+        <nav class="top-nav">
+          ${opts.pageLinks.map(pl => `<a class=\"tab-btn\" href=\"${pl.href}\">${pl.title}</a>`).join('')}
+        </nav>
+        ` : (cotId || cozyId || econId) ? `
         <nav class="top-nav">
           ${cotId ? `<button class=\"tab-btn\" data-target=\"${cotId}\">Commitment of Traders</button>` : ''}
           ${cozyId ? `<button class=\"tab-btn\" data-target=\"${cozyId}\">Cozy Calendar</button>` : ''}
@@ -463,7 +471,11 @@ function generateNewsletterHTML(newsletterData) {
         ` : ''}
 
         <main class="newsletter-content">
-            ${sectionsSorted.map(section => `
+            ${sectionsSorted.map(section => {
+              if (opts?.currentSlug && `section-${String(section.title || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}` !== opts.currentSlug) {
+                return '';
+              }
+              return `
                 <section id="section-${String(section.title || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}" class="newsletter-section">
                     <h2 class="section-title">${section.title}</h2>
                     ${section.communityNews ? `
@@ -519,7 +531,7 @@ function generateNewsletterHTML(newsletterData) {
                         </div>
                     ` : ''}
                 </section>
-            `).join('')}
+            `}).join('')}
             ${Array.isArray(newsletterData.propFirmNews) && newsletterData.propFirmNews.length ? `
               <section class="newsletter-section">
                 <h2 class="section-title">${(newsletterData.labels && newsletterData.labels.propFirmNews) || 'Prop Firm News'}</h2>
@@ -574,4 +586,5 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} in ${NODE_ENV} mode`);
   console.log(`Frontend served from: ${path.join(__dirname, '../dist')}`);
   console.log(`Published files served from: ${PUBLISH_DIR}`);
+});
 });

@@ -419,7 +419,7 @@ function generateNewsletterHTML(newsletterData) {
         .community-news-item img { max-width: 50%; height: auto; }
         .custom-section-image { max-width: 50%; height: auto; }
         /* Logo */
-        .kl-logo { height: 48px; margin-bottom: var(--spacing-3); display: inline-block; }
+        .kl-logo { height: 96px; margin-bottom: var(--spacing-3); display: inline-block; }
         /* Footer */
         .newsletter-footer { border-top: 1px solid var(--border-color); padding: var(--spacing-8) var(--spacing-6); color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-4); flex-wrap: wrap; }
         .footer-text p { margin: 0; }

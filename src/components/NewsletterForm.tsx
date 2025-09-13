@@ -98,7 +98,14 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       labels: {
         communityNews: '🏛️ Kingline Community News',
         news: '🗞️ News',
-        dailyNews: '📰 Economic News'
+        dailyNews: '📰 Economic News',
+        propFirmNews: '🏢 Prop Firm News'
+      },
+      labelsEnabled: {
+        communityNews: true,
+        news: true,
+        dailyNews: true,
+        propFirmNews: true
       },
       sections: [],
       footer: {
@@ -112,7 +119,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     }
   );
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'community-news' | 'news' | 'custom' | 'daily-news'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'community-news' | 'news' | 'prop-firm-news' | 'custom' | 'daily-news'>('basic');
 
   // Removed trades and trader of week state per request
 
@@ -152,6 +159,14 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     link: ''
   });
 
+  // Prop Firm News state (same shape as News)
+  const [propFirmNews, setPropFirmNews] = useState<NewsItem[]>([]);
+  const [newPropNews, setNewPropNews] = useState<Partial<NewsItem>>({
+    title: '',
+    description: '',
+    link: ''
+  });
+
   // Custom sections
   const [customSections, setCustomSections] = useState<Array<{ id: string; title: string; customHtml?: string; imageDataUrl?: string }>>([]);
   const [newCustom, setNewCustom] = useState<{ title: string; customHtml: string; imageDataUrl?: string }>({ title: '', customHtml: '' });
@@ -182,6 +197,11 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       if (savedCustom) {
         setCustomSections(JSON.parse(savedCustom));
       }
+
+      const savedProp = localStorage.getItem('newsletter-prop-news');
+      if (savedProp) {
+        setPropFirmNews(JSON.parse(savedProp));
+      }
     } catch (error) {
       console.error('Error loading saved data:', error);
     }
@@ -205,6 +225,10 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
   useEffect(() => {
     localStorage.setItem('newsletter-news', JSON.stringify(newsItems));
   }, [newsItems]);
+
+  useEffect(() => {
+    localStorage.setItem('newsletter-prop-news', JSON.stringify(propFirmNews));
+  }, [propFirmNews]);
 
   useEffect(() => {
     localStorage.setItem('newsletter-custom', JSON.stringify(customSections));
@@ -277,6 +301,20 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     }
   };
 
+  const addPropNews = () => {
+    if (newPropNews.title && newPropNews.description) {
+      const item: NewsItem = {
+        id: Date.now().toString(),
+        title: newPropNews.title!,
+        description: newPropNews.description!,
+        link: newPropNews.link || undefined,
+        author: newPropNews.author || undefined
+      };
+      setPropFirmNews([...propFirmNews, item]);
+      setNewPropNews({ title: '', description: '', link: '' });
+    }
+  };
+
   const addCustomSection = () => {
     if (!newCustom.title || (!newCustom.customHtml && !newCustom.imageDataUrl)) return;
     setCustomSections(prev => [...prev, { id: Date.now().toString(), title: newCustom.title, customHtml: newCustom.customHtml, imageDataUrl: newCustom.imageDataUrl }]);
@@ -301,8 +339,8 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     
     // Removed KL Traders and Trader of the Week sections
 
-    // Add community news section if community news exist
-    if (communityNews.length > 0) {
+    // Add community news section if enabled and exist
+    if ((formData.labelsEnabled?.communityNews ?? true) && communityNews.length > 0) {
       sections.push({
         id: 'community-news',
         title: formData.labels?.communityNews || '🏛️ Kingline Community News',
@@ -310,12 +348,21 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       });
     }
 
-    // Add News section if exists
-    if (newsItems.length > 0) {
+    // Add News section if enabled
+    if ((formData.labelsEnabled?.news ?? true) && newsItems.length > 0) {
       sections.push({
         id: 'news',
         title: formData.labels?.news || '🗞️ News',
         newsItems
+      });
+    }
+
+    // Add Prop Firm News section if enabled
+    if ((formData.labelsEnabled?.propFirmNews ?? true) && propFirmNews.length > 0) {
+      sections.push({
+        id: 'prop-firm-news',
+        title: formData.labels?.propFirmNews || '🏢 Prop Firm News',
+        newsItems: propFirmNews
       });
     }
 
@@ -326,7 +373,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
 
     // Add daily news section if any day has news items
     const hasNewsItems = Object.values(dailyNews).some(dayItems => dayItems.length > 0);
-    if (hasNewsItems) {
+    if ((formData.labelsEnabled?.dailyNews ?? true) && hasNewsItems) {
       sections.push({
         id: 'daily-news',
         title: formData.labels?.dailyNews || '📰 Economic News',
@@ -350,6 +397,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       localStorage.removeItem('newsletter-community-news');
       localStorage.removeItem('newsletter-news');
       localStorage.removeItem('newsletter-custom');
+      localStorage.removeItem('newsletter-prop-news');
 
       // Reset all form states
       setFormData({
@@ -363,6 +411,18 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
         }),
         weekRange: '',
         edition: '',
+        labels: {
+          communityNews: '🏛️ Kingline Community News',
+          news: '🗞️ News',
+          dailyNews: '📰 Economic News',
+          propFirmNews: '🏢 Prop Firm News'
+        },
+        labelsEnabled: {
+          communityNews: true,
+          news: true,
+          dailyNews: true,
+          propFirmNews: true
+        },
         sections: [],
         footer: {
           companyName: 'Kingline Capital',
@@ -424,6 +484,12 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
           onClick={() => setActiveTab('news')}
         >
           News ({newsItems.length})
+        </button>
+        <button 
+          className={`tab ${activeTab === 'prop-firm-news' ? 'active' : ''}`}
+          onClick={() => setActiveTab('prop-firm-news')}
+        >
+          Prop Firm News ({propFirmNews.length})
         </button>
         <button 
           className={`tab ${activeTab === 'custom' ? 'active' : ''}`}
@@ -488,20 +554,120 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                   onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, communityNews: e.target.value } })}
                   placeholder="🏛️ Kingline Community News"
                 />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.labelsEnabled?.communityNews ?? true}
+                    onChange={(e) => setFormData({ ...formData, labelsEnabled: { ...formData.labelsEnabled, communityNews: e.target.checked } })}
+                  />
+                  <span style={{ color: 'var(--text-secondary)' }}>Show Community News</span>
+                </div>
                 <input
                   type="text"
                   value={formData.labels?.news || ''}
                   onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, news: e.target.value } })}
                   placeholder="🗞️ News"
                 />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.labelsEnabled?.news ?? true}
+                    onChange={(e) => setFormData({ ...formData, labelsEnabled: { ...formData.labelsEnabled, news: e.target.checked } })}
+                  />
+                  <span style={{ color: 'var(--text-secondary)' }}>Show News</span>
+                </div>
+                <input
+                  type="text"
+                  value={formData.labels?.propFirmNews || ''}
+                  onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, propFirmNews: e.target.value } })}
+                  placeholder="🏢 Prop Firm News"
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.labelsEnabled?.propFirmNews ?? true}
+                    onChange={(e) => setFormData({ ...formData, labelsEnabled: { ...formData.labelsEnabled, propFirmNews: e.target.checked } })}
+                  />
+                  <span style={{ color: 'var(--text-secondary)' }}>Show Prop Firm News</span>
+                </div>
                 <input
                   type="text"
                   value={formData.labels?.dailyNews || ''}
                   onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, dailyNews: e.target.value } })}
                   placeholder="📰 Economic News"
                 />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.labelsEnabled?.dailyNews ?? true}
+                    onChange={(e) => setFormData({ ...formData, labelsEnabled: { ...formData.labelsEnabled, dailyNews: e.target.checked } })}
+                  />
+                  <span style={{ color: 'var(--text-secondary)' }}>Show Daily News</span>
+                </div>
               </div>
             </div>
+          </div>
+        )}
+        {activeTab === 'prop-firm-news' && (
+          <div className="form-section">
+            <h3>Prop Firm News</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--spacing-6)' }}>
+              Prop firm related updates and articles.
+            </p>
+            <div className="community-news-form">
+              <div className="form-group">
+                <label>Title</label>
+                <input
+                  type="text"
+                  value={newPropNews.title || ''}
+                  onChange={(e) => setNewPropNews({ ...newPropNews, title: e.target.value })}
+                  placeholder="Headline title"
+                />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <RichText
+                  value={newPropNews.description || ''}
+                  onChange={(html) => setNewPropNews({ ...newPropNews, description: html })}
+                  placeholder="Write description with formatting..."
+                />
+              </div>
+              <div className="form-group">
+                <label>Link (Optional)</label>
+                <input
+                  type="url"
+                  value={newPropNews.link || ''}
+                  onChange={(e) => setNewPropNews({ ...newPropNews, link: e.target.value })}
+                  placeholder="https://example.com/article"
+                />
+              </div>
+              <button type="button" onClick={addPropNews} className="btn btn-secondary" disabled={!(newPropNews.title && newPropNews.description)}>
+                Add Prop Firm News Item
+              </button>
+            </div>
+            {propFirmNews.length > 0 && (
+              <div className="community-news-list">
+                <h4>Added Prop Firm News ({propFirmNews.length})</h4>
+                {propFirmNews.map((item, index) => (
+                  <div key={item.id} className="community-news-preview">
+                    <div className="community-news-preview-title">{item.title}</div>
+                    <div className="community-news-preview-description" dangerouslySetInnerHTML={{ __html: item.description || '' }} />
+                    {item.link && (
+                      <div className="community-news-preview-meta">
+                        <a href={item.link} target="_blank" rel="noopener noreferrer" className="read-more">Read More →</a>
+                      </div>
+                    )}
+                    <button 
+                      type="button" 
+                      onClick={() => setPropFirmNews(propFirmNews.filter((_, i) => i !== index))}
+                      className="remove-btn"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

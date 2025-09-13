@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Newsletter from './components/Newsletter';
 import NewsletterForm from './components/NewsletterForm';
 import { sampleNewsletterData } from './data/sampleNewsletter';
+import EmojiPane from './components/EmojiPane';
 import { NewsletterData } from './types/newsletter';
 
 function App() {
@@ -231,6 +232,7 @@ function App() {
       ) : (
         <Newsletter data={newsletterData} />
       )}
+      <EmojiPane />
     </div>
   );
 }

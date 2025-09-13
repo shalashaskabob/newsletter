@@ -64,19 +64,19 @@ function tryInsertEmoji(emoji: string, setToast: (msg: string)=>void) {
 }
 
 const EmojiPane: React.FC = () => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(true);
   const [toast, setToast] = useState<string>('');
 
   const categories = useMemo(() => EMOJI_CATEGORIES, []);
 
   return (
-    <div style={{ position: 'fixed', right: 16, bottom: 16, zIndex: 1000 }}>
+    <div style={{ position: 'fixed', right: 16, bottom: 16, zIndex: 10000 }}>
       {/* Toggle Button */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="btn btn-secondary"
-        style={{ display: 'block', marginLeft: 'auto' }}
+        style={{ display: 'block', marginLeft: 'auto', background: '#d4af37', color: '#0d1117', border: '1px solid #b8941f', fontWeight: 700 }}
       >
         {open ? 'Close Emojis' : 'Emojis'}
       </button>

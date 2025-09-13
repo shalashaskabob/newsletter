@@ -314,6 +314,17 @@ function generateNewsletterHTML(newsletterData) {
         return aIsDaily - bIsDaily;
       })
     : [];
+  const slugify = (t) => String(t || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  const findByTitleIncludes = (needle) => sectionsSorted.find(s => String(s?.title || '').toLowerCase().includes(needle));
+  const cotSection = findByTitleIncludes('commitment of traders');
+  const cozySection = findByTitleIncludes('cozy calendar');
+  const econSection = sectionsSorted.find(s => s && s.dailyNews);
+  const cotId = cotSection ? `section-${slugify(cotSection.title)}` : '';
+  const cozyId = cozySection ? `section-${slugify(cozySection.title)}` : '';
+  const econId = econSection ? `section-${slugify(econSection.title || (newsletterData.labels && newsletterData.labels.dailyNews) || 'Economic News')}` : '';
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -420,6 +431,11 @@ function generateNewsletterHTML(newsletterData) {
         .custom-section-image { max-width: 50%; height: auto; }
         /* Logo */
         .kl-logo { height: 96px; margin-bottom: var(--spacing-3); display: inline-block; }
+        /* Top Nav */
+        .top-nav { display: flex; gap: var(--spacing-4); align-items: center; padding: var(--spacing-4) var(--spacing-6); border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); position: sticky; top: 0; z-index: 50; }
+        .tab-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; }
+        .tab-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .tab-btn.active { background: var(--primary-color); color: var(--bg-primary); border-color: var(--primary-color); }
         /* Footer */
         .newsletter-footer { border-top: 1px solid var(--border-color); padding: var(--spacing-8) var(--spacing-6); color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-4); flex-wrap: wrap; }
         .footer-text p { margin: 0; }
@@ -438,9 +454,17 @@ function generateNewsletterHTML(newsletterData) {
             ${newsletterData.weekRange ? `<div class="newsletter-week-range" style="font-size: var(--font-size-sm); opacity: 0.8; margin-top: var(--spacing-2);">${newsletterData.weekRange}</div>` : ''}
         </header>
 
+        ${(cotId || cozyId || econId) ? `
+        <nav class="top-nav">
+          ${cotId ? `<button class=\"tab-btn\" data-target=\"${cotId}\">Commitment of Traders</button>` : ''}
+          ${cozyId ? `<button class=\"tab-btn\" data-target=\"${cozyId}\">Cozy Calendar</button>` : ''}
+          ${econId ? `<button class=\"tab-btn\" data-target=\"${econId}\">Economic News</button>` : ''}
+        </nav>
+        ` : ''}
+
         <main class="newsletter-content">
             ${sectionsSorted.map(section => `
-                <section class="newsletter-section">
+                <section id="section-${String(section.title || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}" class="newsletter-section">
                     <h2 class="section-title">${section.title}</h2>
                     ${section.communityNews ? `
                         <div class="community-news-list">
@@ -522,7 +546,39 @@ function generateNewsletterHTML(newsletterData) {
           </div>
         </footer>
     </div>
+<script>
+  (function(){
+    var nav = document.querySelector('.top-nav');
+    if (!nav) return;
+    var buttons = nav.querySelectorAll('.tab-btn');
+    buttons.forEach(function(btn, idx){
+      btn.addEventListener('click', function(){
+        var targetId = btn.getAttribute('data-target');
+        var el = document.getElementById(targetId);
+        if (el) {
+          window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+          buttons.forEach(function(b){ b.classList.remove('active'); });
+          btn.classList.add('active');
+        }
+      });
+      if (idx === 0) btn.classList.add('active');
+    });
+  })();
+</script>
 </body>
+</html>
+  `;
+}
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} in ${NODE_ENV} mode`);
+  console.log(`Frontend served from: ${path.join(__dirname, '../dist')}`);
+  console.log(`Published files served from: ${PUBLISH_DIR}`);
+});
+
+/* Inject tab click handler at end of generated HTML */
+// Note: we append a small script into the HTML string above via publish flow if needed.
+// For runtime preview, we keep the HTML static.
 </html>
   `;
 }

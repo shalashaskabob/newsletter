@@ -587,4 +587,3 @@ app.listen(PORT, () => {
   console.log(`Frontend served from: ${path.join(__dirname, '../dist')}`);
   console.log(`Published files served from: ${PUBLISH_DIR}`);
 });
-});

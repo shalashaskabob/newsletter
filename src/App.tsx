@@ -20,36 +20,46 @@ function App() {
     };
   }, [newsletterData.fontScale]);
 
-  const handleGenerateImage = async () => {
-    setIsGenerating(true);
+  // Save/Load snapshot of all form-related state
+  const handleSaveSnapshot = () => {
     try {
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ newsletterData }),
-      });
+      const snapshot = {
+        basic: localStorage.getItem('newsletter-form-basic'),
+        daily: localStorage.getItem('newsletter-daily-news'),
+        community: localStorage.getItem('newsletter-community-news'),
+        news: localStorage.getItem('newsletter-news'),
+        custom: localStorage.getItem('newsletter-custom'),
+        prop: localStorage.getItem('newsletter-prop-news'),
+        font: localStorage.getItem('newsletter-font-scale')
+      };
+      localStorage.setItem('newsletter-snapshot', JSON.stringify(snapshot));
+      alert('Saved current state.');
+    } catch (e) {
+      alert('Failed to save.');
+    }
+  };
 
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `kl-newsletter-${new Date().toISOString().split('T')[0]}.png`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } else {
-        console.error('Failed to generate image');
-        alert('Failed to generate image. Please try again.');
+  const handleLoadSnapshotState = () => {
+    try {
+      const raw = localStorage.getItem('newsletter-snapshot');
+      if (!raw) {
+        alert('No saved state found.');
+        return;
       }
-    } catch (error) {
-      console.error('Error generating image:', error);
-      alert('Error generating image. Please try again.');
-    } finally {
-      setIsGenerating(false);
+      const snap = JSON.parse(raw);
+      if (snap.basic) localStorage.setItem('newsletter-form-basic', snap.basic);
+      if (snap.daily) localStorage.setItem('newsletter-daily-news', snap.daily);
+      if (snap.community) localStorage.setItem('newsletter-community-news', snap.community);
+      if (snap.news) localStorage.setItem('newsletter-news', snap.news);
+      if (snap.custom) localStorage.setItem('newsletter-custom', snap.custom);
+      if (snap.prop) localStorage.setItem('newsletter-prop-news', snap.prop);
+      if (snap.font) localStorage.setItem('newsletter-font-scale', snap.font);
+      const currentNewsletterData = generateNewsletterFromCurrentData();
+      setNewsletterData(currentNewsletterData);
+      setCurrentView('form');
+      alert('Loaded saved state.');
+    } catch (e) {
+      alert('Failed to load saved state.');
     }
   };
 
@@ -60,10 +70,7 @@ function App() {
     setCurrentView('preview');
   };
 
-  const handleLoadSample = () => {
-    setNewsletterData(sampleNewsletterData);
-    setCurrentView('preview');
-  };
+  // removed Load Sample per request
 
   const generateNewsletterFromCurrentData = () => {
     try {
@@ -181,19 +188,18 @@ function App() {
         </button>
         <button 
           className="btn btn-secondary" 
-          onClick={handleLoadSample}
+          onClick={handleSaveSnapshot}
         >
-          Load Sample
+          Save
+        </button>
+        <button 
+          className="btn btn-secondary" 
+          onClick={handleLoadSnapshotState}
+        >
+          Load
         </button>
         {currentView === 'preview' && (
           <>
-            <button 
-              className="btn btn-primary" 
-              onClick={handleGenerateImage}
-              disabled={isGenerating}
-            >
-              {isGenerating ? 'Generating...' : 'Generate Image'}
-            </button>
             <button
               className="btn btn-secondary"
               onClick={async () => {

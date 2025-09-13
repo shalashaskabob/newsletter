@@ -659,7 +659,14 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                     <div className="community-news-preview-title">{cs.title}</div>
                     {cs.customHtml && (<div className="community-news-preview-description" dangerouslySetInnerHTML={{__html: cs.customHtml}} />)}
                     {cs.imageDataUrl && (<div style={{marginTop:'8px'}}><img src={cs.imageDataUrl} alt="custom" style={{maxWidth:'100%', borderRadius:'8px'}}/></div>)}
-                    <div style={{marginTop:'8px'}}>
+                    <div style={{marginTop:'8px', display:'flex', gap: 8}}>
+                      <button type="button" className="btn btn-secondary" onClick={()=>{
+                        const title = prompt('Edit custom section title', cs.title) ?? cs.title;
+                        const html = prompt('Edit content (HTML allowed)', cs.customHtml || '') ?? (cs.customHtml || '');
+                        const next = [...customSections];
+                        next[idx] = { ...cs, title, customHtml: html } as any;
+                        setCustomSections(next);
+                      }}>Edit</button>
                       <button type="button" className="remove-btn" onClick={()=> setCustomSections(customSections.filter((_,i)=>i!==idx))}>Remove</button>
                     </div>
                   </div>
@@ -720,13 +727,25 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                         <a href={item.link} target="_blank" rel="noopener noreferrer" className="read-more">Read More →</a>
                       </div>
                     )}
-                    <button 
-                      type="button" 
-                      onClick={() => setNewsItems(newsItems.filter((_, i) => i !== index))}
-                      className="remove-btn"
-                    >
-                      Remove
-                    </button>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          const title = prompt('Edit title', item.title) ?? item.title;
+                          const link = prompt('Edit link (optional)', item.link || '') ?? (item.link || '');
+                          const description = prompt('Edit description (HTML allowed)', item.description || '') ?? (item.description || '');
+                          const next = [...newsItems];
+                          next[index] = { ...item, title, link, description } as any;
+                          setNewsItems(next);
+                        }}
+                        className="btn btn-secondary"
+                      >Edit</button>
+                      <button 
+                        type="button" 
+                        onClick={() => setNewsItems(newsItems.filter((_, i) => i !== index))}
+                        className="remove-btn"
+                      >Remove</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -834,17 +853,31 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                     }}>
                       {item.type}
                     </div>
-                    <div className="community-news-preview-description">{item.description}</div>
+                    <div className="community-news-preview-description" dangerouslySetInnerHTML={{ __html: item.description }} />
                     <div className="community-news-preview-meta">
                       {item.date} {item.author && `• By ${item.author}`}
                     </div>
-                    <button 
-                      type="button" 
-                      onClick={() => setCommunityNews(communityNews.filter((_, i) => i !== index))}
-                      className="remove-btn"
-                    >
-                      Remove
-                    </button>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          const title = prompt('Edit title', item.title) ?? item.title;
+                          const date = prompt('Edit date', item.date) ?? item.date;
+                          const author = prompt('Edit author (optional)', item.author || '') ?? (item.author || '');
+                          // Description edit with simple prompt (for quick fix); for rich edit open modal is better
+                          const description = prompt('Edit description (HTML allowed)', item.description) ?? item.description;
+                          const next = [...communityNews];
+                          next[index] = { ...item, title, date, author, description } as any;
+                          setCommunityNews(next);
+                        }}
+                        className="btn btn-secondary"
+                      >Edit</button>
+                      <button 
+                        type="button" 
+                        onClick={() => setCommunityNews(communityNews.filter((_, i) => i !== index))}
+                        className="remove-btn"
+                      >Remove</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -891,14 +924,26 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                       {dailyNews[day].map((item) => (
                         <div key={item.id} className="news-item-preview">
                           {item.headline}
-                          <button
-                            type="button"
-                            className="news-item-remove"
-                            onClick={() => removeNewsItem(day, item.id)}
-                            title="Remove item"
-                          >
-                            ×
-                          </button>
+                          <div style={{ display:'inline-flex', gap: 6, marginLeft: 8 }}>
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              onClick={() => {
+                                const edited = prompt('Edit headline', item.headline) ?? item.headline;
+                                setDailyNews(prev => ({
+                                  ...prev,
+                                  [day]: prev[day].map(it => it.id === item.id ? { ...it, headline: edited } : it)
+                                }));
+                              }}
+                              title="Edit item"
+                            >Edit</button>
+                            <button
+                              type="button"
+                              className="news-item-remove"
+                              onClick={() => removeNewsItem(day, item.id)}
+                              title="Remove item"
+                            >×</button>
+                          </div>
                         </div>
                       ))}
                     </div>

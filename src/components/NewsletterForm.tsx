@@ -661,11 +661,9 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                     {cs.imageDataUrl && (<div style={{marginTop:'8px'}}><img src={cs.imageDataUrl} alt="custom" style={{maxWidth:'100%', borderRadius:'8px'}}/></div>)}
                     <div style={{marginTop:'8px', display:'flex', gap: 8}}>
                       <button type="button" className="btn btn-secondary" onClick={()=>{
-                        const title = prompt('Edit custom section title', cs.title) ?? cs.title;
-                        const html = prompt('Edit content (HTML allowed)', cs.customHtml || '') ?? (cs.customHtml || '');
-                        const next = [...customSections];
-                        next[idx] = { ...cs, title, customHtml: html } as any;
-                        setCustomSections(next);
+                        setNewCustom({ title: cs.title, customHtml: cs.customHtml || '', imageDataUrl: cs.imageDataUrl });
+                        setCustomSections(customSections.filter((_,i)=>i!==idx));
+                        setActiveTab('custom');
                       }}>Edit</button>
                       <button type="button" className="remove-btn" onClick={()=> setCustomSections(customSections.filter((_,i)=>i!==idx))}>Remove</button>
                     </div>
@@ -731,12 +729,9 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                       <button 
                         type="button" 
                         onClick={() => {
-                          const title = prompt('Edit title', item.title) ?? item.title;
-                          const link = prompt('Edit link (optional)', item.link || '') ?? (item.link || '');
-                          const description = prompt('Edit description (HTML allowed)', item.description || '') ?? (item.description || '');
-                          const next = [...newsItems];
-                          next[index] = { ...item, title, link, description } as any;
-                          setNewsItems(next);
+                          setNewNews({ title: item.title, description: item.description || '', link: item.link || '' });
+                          setNewsItems(newsItems.filter((_, i) => i !== index));
+                          setActiveTab('news');
                         }}
                         className="btn btn-secondary"
                       >Edit</button>
@@ -861,14 +856,16 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                       <button 
                         type="button" 
                         onClick={() => {
-                          const title = prompt('Edit title', item.title) ?? item.title;
-                          const date = prompt('Edit date', item.date) ?? item.date;
-                          const author = prompt('Edit author (optional)', item.author || '') ?? (item.author || '');
-                          // Description edit with simple prompt (for quick fix); for rich edit open modal is better
-                          const description = prompt('Edit description (HTML allowed)', item.description) ?? item.description;
-                          const next = [...communityNews];
-                          next[index] = { ...item, title, date, author, description } as any;
-                          setCommunityNews(next);
+                          setNewCommunityNews({
+                            title: item.title,
+                            description: item.description,
+                            type: item.type,
+                            date: item.date,
+                            author: item.author || '',
+                            link: item.link || ''
+                          });
+                          setCommunityNews(communityNews.filter((_, i) => i !== index));
+                          setActiveTab('community-news');
                         }}
                         className="btn btn-secondary"
                       >Edit</button>

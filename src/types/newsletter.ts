@@ -88,13 +88,6 @@ export interface NewsletterData {
     dailyNews?: string;
     propFirmNews?: string;
   };
-  // Optional toggles to include/exclude sections when building
-  labelsEnabled?: {
-    communityNews?: boolean;
-    news?: boolean;
-    dailyNews?: boolean;
-    propFirmNews?: boolean;
-  };
   // User-controlled scaling for overall typography
   fontScale?: number;
   sections: NewsletterSection[];

@@ -101,12 +101,6 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
         dailyNews: '📰 Economic News',
         propFirmNews: '🏢 Prop Firm News'
       },
-      labelsEnabled: {
-        communityNews: true,
-        news: true,
-        dailyNews: true,
-        propFirmNews: true
-      },
       sections: [],
       footer: {
         companyName: 'Kingline Capital',
@@ -340,7 +334,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     // Removed KL Traders and Trader of the Week sections
 
     // Add community news section if enabled and exist
-    if ((formData.labelsEnabled?.communityNews ?? true) && communityNews.length > 0) {
+    if (communityNews.length > 0) {
       sections.push({
         id: 'community-news',
         title: formData.labels?.communityNews || '🏛️ Kingline Community News',
@@ -349,7 +343,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     }
 
     // Add News section if enabled
-    if ((formData.labelsEnabled?.news ?? true) && newsItems.length > 0) {
+    if (newsItems.length > 0) {
       sections.push({
         id: 'news',
         title: formData.labels?.news || '🗞️ News',
@@ -358,7 +352,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     }
 
     // Add Prop Firm News section if enabled
-    if ((formData.labelsEnabled?.propFirmNews ?? true) && propFirmNews.length > 0) {
+    if (propFirmNews.length > 0) {
       sections.push({
         id: 'prop-firm-news',
         title: formData.labels?.propFirmNews || '🏢 Prop Firm News',
@@ -373,7 +367,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
 
     // Add daily news section if any day has news items
     const hasNewsItems = Object.values(dailyNews).some(dayItems => dayItems.length > 0);
-    if ((formData.labelsEnabled?.dailyNews ?? true) && hasNewsItems) {
+    if (hasNewsItems) {
       sections.push({
         id: 'daily-news',
         title: formData.labels?.dailyNews || '📰 Economic News',
@@ -416,12 +410,6 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
           news: '🗞️ News',
           dailyNews: '📰 Economic News',
           propFirmNews: '🏢 Prop Firm News'
-        },
-        labelsEnabled: {
-          communityNews: true,
-          news: true,
-          dailyNews: true,
-          propFirmNews: true
         },
         sections: [],
         footer: {
@@ -554,56 +542,24 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                   onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, communityNews: e.target.value } })}
                   placeholder="🏛️ Kingline Community News"
                 />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="checkbox"
-                    checked={formData.labelsEnabled?.communityNews ?? true}
-                    onChange={(e) => setFormData({ ...formData, labelsEnabled: { ...formData.labelsEnabled, communityNews: e.target.checked } })}
-                  />
-                  <span style={{ color: 'var(--text-secondary)' }}>Show Community News</span>
-                </div>
                 <input
                   type="text"
                   value={formData.labels?.news || ''}
                   onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, news: e.target.value } })}
                   placeholder="🗞️ News"
                 />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="checkbox"
-                    checked={formData.labelsEnabled?.news ?? true}
-                    onChange={(e) => setFormData({ ...formData, labelsEnabled: { ...formData.labelsEnabled, news: e.target.checked } })}
-                  />
-                  <span style={{ color: 'var(--text-secondary)' }}>Show News</span>
-                </div>
                 <input
                   type="text"
                   value={formData.labels?.propFirmNews || ''}
                   onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, propFirmNews: e.target.value } })}
                   placeholder="🏢 Prop Firm News"
                 />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="checkbox"
-                    checked={formData.labelsEnabled?.propFirmNews ?? true}
-                    onChange={(e) => setFormData({ ...formData, labelsEnabled: { ...formData.labelsEnabled, propFirmNews: e.target.checked } })}
-                  />
-                  <span style={{ color: 'var(--text-secondary)' }}>Show Prop Firm News</span>
-                </div>
                 <input
                   type="text"
                   value={formData.labels?.dailyNews || ''}
                   onChange={(e) => setFormData({ ...formData, labels: { ...formData.labels, dailyNews: e.target.value } })}
                   placeholder="📰 Economic News"
                 />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="checkbox"
-                    checked={formData.labelsEnabled?.dailyNews ?? true}
-                    onChange={(e) => setFormData({ ...formData, labelsEnabled: { ...formData.labelsEnabled, dailyNews: e.target.checked } })}
-                  />
-                  <span style={{ color: 'var(--text-secondary)' }}>Show Daily News</span>
-                </div>
               </div>
             </div>
           </div>

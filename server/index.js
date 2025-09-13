@@ -575,16 +575,3 @@ app.listen(PORT, () => {
   console.log(`Frontend served from: ${path.join(__dirname, '../dist')}`);
   console.log(`Published files served from: ${PUBLISH_DIR}`);
 });
-
-/* Inject tab click handler at end of generated HTML */
-// Note: we append a small script into the HTML string above via publish flow if needed.
-// For runtime preview, we keep the HTML static.
-</html>
-  `;
-}
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} in ${NODE_ENV} mode`);
-  console.log(`Frontend served from: ${path.join(__dirname, '../dist')}`);
-  console.log(`Published files served from: ${PUBLISH_DIR}`);
-});

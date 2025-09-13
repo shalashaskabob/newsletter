@@ -24,6 +24,11 @@ try {
 // Serve published HTML files
 app.use('/published', express.static(PUBLISH_DIR));
 
+// Serve logo asset for published pages
+app.get('/logo.svg', (req, res) => {
+  res.sendFile(path.join(__dirname, '../logo.svg'));
+});
+
 // -----------------
 // Simple cookie auth
 // -----------------
@@ -408,8 +413,13 @@ function generateNewsletterHTML(newsletterData) {
         .community-news-item { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-4); }
         .community-news-title { font-size: var(--font-size-base); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-2); }
         .community-news-content { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; }
-        .community-news-link { display: inline-block; margin-top: var(--spacing-3); background: var(--primary-color); color: var(--bg-primary); text-decoration: none; font-weight: 600; padding: 8px 12px; border-radius: var(--radius-md); }
+        .community-news-link { display: inline-block; margin-top: var(--spacing-3); background: var(--primary-color); color: var(--bg-primary); text-decoration: none; font-weight: 600; padding: 4px 6px; border-radius: var(--radius-md); font-size: 0.5em; }
         .community-news-link:hover { background: var(--primary-dark); color: var(--bg-primary); }
+        /* Images in content reduced by ~50% */
+        .community-news-item img { max-width: 50%; height: auto; }
+        .custom-section-image { max-width: 50%; height: auto; }
+        /* Logo */
+        .kl-logo { height: 48px; margin-bottom: var(--spacing-3); display: inline-block; }
         /* Footer */
         .newsletter-footer { border-top: 1px solid var(--border-color); padding: var(--spacing-8) var(--spacing-6); color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-4); flex-wrap: wrap; }
         .footer-text p { margin: 0; }
@@ -422,6 +432,7 @@ function generateNewsletterHTML(newsletterData) {
     <div class="newsletter-container">
         <header class="newsletter-header" style="position: relative;">
             ${newsletterData.edition ? `<div class="newsletter-edition" style="position: absolute; top: var(--spacing-4); right: var(--spacing-6); font-size: var(--font-size-base); font-weight: 600; color: var(--primary-color);">${newsletterData.edition}</div>` : ''}
+            <img src="/logo.svg" alt="Kingline Capital" class="kl-logo" />
             <h1 class="newsletter-title">${newsletterData.title}</h1>
             <p class="newsletter-subtitle">${newsletterData.subtitle}</p>
             ${newsletterData.weekRange ? `<div class="newsletter-week-range" style="font-size: var(--font-size-sm); opacity: 0.8; margin-top: var(--spacing-2);">${newsletterData.weekRange}</div>` : ''}
@@ -479,12 +490,26 @@ function generateNewsletterHTML(newsletterData) {
                         <div class="community-news-list">
                             <div class="community-news-item">
                                 ${section.customHtml ? `<div class=\"community-news-content\">${section.customHtml}</div>` : ''}
-                                ${section.imageDataUrl ? `<div style=\"margin-top:12px; display:flex; justify-content:center;\"><img src=\"${section.imageDataUrl}\" alt=\"custom\" style=\"max-width:100%; border-radius:12px; display:block; margin:0 auto;\" /></div>` : ''}
+                                ${section.imageDataUrl ? `<div style=\"margin-top:12px; display:flex; justify-content:center;\"><img src=\"${section.imageDataUrl}\" alt=\"custom\" class=\"custom-section-image\" style=\"border-radius:12px; display:block; margin:0 auto;\" /></div>` : ''}
                             </div>
                         </div>
                     ` : ''}
                 </section>
             `).join('')}
+            ${Array.isArray(newsletterData.propFirmNews) && newsletterData.propFirmNews.length ? `
+              <section class="newsletter-section">
+                <h2 class="section-title">${(newsletterData.labels && newsletterData.labels.propFirmNews) || 'Prop Firm News'}</h2>
+                <div class="community-news-list">
+                  ${newsletterData.propFirmNews.map(news => `
+                    <div class="community-news-item">
+                      <div class="community-news-title">${news.title || ''}</div>
+                      <div class="community-news-content">${news.description || news.content || ''}</div>
+                      ${news.link ? `<a href="${news.link}" class="community-news-link" target="_blank" rel="noopener noreferrer">Read More →</a>` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+              </section>
+            ` : ''}
         </main>
         <footer class="newsletter-footer">
           <div class="footer-text">

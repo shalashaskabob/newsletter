@@ -135,7 +135,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
   });
 
   // Daily news optional section image
-  const [dailyNewsImageDataUrl, setDailyNewsImageDataUrl] = useState<string | undefined>(undefined);
+  const [dailyNewsImageDataUrls, setDailyNewsImageDataUrls] = useState<string[]>([]);
 
   // Community news form state
   const [communityNews, setCommunityNews] = useState<CommunityNewsItem[]>([]);
@@ -200,9 +200,9 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
         setPropFirmNews(JSON.parse(savedProp));
       }
 
-      const savedDailyImage = localStorage.getItem('newsletter-daily-news-image');
-      if (savedDailyImage) {
-        setDailyNewsImageDataUrl(savedDailyImage);
+      const savedDailyImages = localStorage.getItem('newsletter-daily-news-images');
+      if (savedDailyImages) {
+        setDailyNewsImageDataUrls(JSON.parse(savedDailyImages));
       }
     } catch (error) {
       console.error('Error loading saved data:', error);
@@ -237,12 +237,8 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
   }, [customSections]);
 
   useEffect(() => {
-    if (dailyNewsImageDataUrl) {
-      localStorage.setItem('newsletter-daily-news-image', dailyNewsImageDataUrl);
-    } else {
-      localStorage.removeItem('newsletter-daily-news-image');
-    }
-  }, [dailyNewsImageDataUrl]);
+    localStorage.setItem('newsletter-daily-news-images', JSON.stringify(dailyNewsImageDataUrls));
+  }, [dailyNewsImageDataUrls]);
 
   // Removed trade add logic
 
@@ -388,7 +384,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
         id: 'daily-news',
         title: formData.labels?.dailyNews || '📰 Economic News',
         dailyNews: dailyNews,
-        imageDataUrl: dailyNewsImageDataUrl
+        imageDataUrls: dailyNewsImageDataUrls
       });
     }
 
@@ -408,7 +404,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       localStorage.removeItem('newsletter-community-news');
       localStorage.removeItem('newsletter-news');
       localStorage.removeItem('newsletter-custom');
-      localStorage.removeItem('newsletter-daily-news-image');
+      localStorage.removeItem('newsletter-daily-news-images');
       localStorage.removeItem('newsletter-prop-news');
 
       // Reset all form states
@@ -444,7 +440,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       setCommunityNews([]);
       setNewsItems([]);
       setCustomSections([]);
-      setDailyNewsImageDataUrl(undefined);
+      setDailyNewsImageDataUrls([]);
       setNewCommunityNews({
         title: '', description: '', type: 'announcement', date: '', author: '', link: ''
       });
@@ -968,28 +964,35 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
               </div>
 
               <div className="form-group" style={{ marginTop: '16px' }}>
-                <label>Section Image (optional)</label>
+                <label>Section Images (optional)</label>
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
+                    const files = Array.from(e.target.files || []);
+                    if (!files.length) return;
                     try {
-                      const dataUrl = await fileToDataUrlCompressed(file);
-                      setDailyNewsImageDataUrl(dataUrl);
+                      const urls: string[] = [];
+                      for (const f of files) {
+                        const dataUrl = await fileToDataUrlCompressed(f);
+                        urls.push(dataUrl);
+                      }
+                      setDailyNewsImageDataUrls(prev => [...prev, ...urls]);
                     } catch (err) {
                       console.error('Failed to process image', err);
-                      alert('Could not process image. Please try a different image.');
+                      alert('Could not process one or more images.');
                     }
                   }}
                 />
-                {dailyNewsImageDataUrl && (
-                  <div style={{ marginTop: '8px' }}>
-                    <img src={dailyNewsImageDataUrl} alt="daily-news" style={{ maxWidth: '100%', borderRadius: '8px' }} />
-                    <div style={{ marginTop: '8px' }}>
-                      <button type="button" className="remove-btn" onClick={() => setDailyNewsImageDataUrl(undefined)}>Remove</button>
-                    </div>
+                {dailyNewsImageDataUrls.length > 0 && (
+                  <div style={{ marginTop: '8px', display: 'grid', gap: 8 }}>
+                    {dailyNewsImageDataUrls.map((url, i) => (
+                      <div key={i} style={{ position: 'relative' }}>
+                        <img src={url} alt={`daily-news-${i}`} style={{ maxWidth: '100%', borderRadius: '8px' }} />
+                        <button type="button" className="remove-btn" onClick={() => setDailyNewsImageDataUrls(dailyNewsImageDataUrls.filter((_, idx) => idx !== i))}>Remove</button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

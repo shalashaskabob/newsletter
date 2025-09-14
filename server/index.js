@@ -511,6 +511,15 @@ function generateNewsletterHTML(newsletterData, opts) {
                             }).join('')}
                         </div>
                     ` : ''}
+                    ${Array.isArray(section.imageDataUrls) && section.imageDataUrls.length ? `
+                        <div class="community-news-list">
+                          <div class="community-news-item">
+                            ${section.imageDataUrls.map((u) => `
+                              <div style=\"margin-top:12px; display:flex; justify-content:center;\"><img src=\"${u}\" alt=\"daily-section\" class=\"custom-section-image\" style=\"border-radius:12px; display:block; margin:0 auto;\" /></div>
+                            `).join('')}
+                          </div>
+                        </div>
+                    ` : ''}
                     ${section.newsItems ? `
                         <div class="community-news-list">
                             ${section.newsItems.map(news => `

@@ -73,6 +73,7 @@ export interface NewsletterSection {
   // Custom free-form content
   customHtml?: string; // formatted HTML (from RTE)
   imageDataUrl?: string; // optional embedded image (data URL)
+  imageDataUrls?: string[]; // optional multiple images for sections like Daily News
 }
 
 export interface NewsletterData {

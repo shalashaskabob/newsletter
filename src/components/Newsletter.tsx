@@ -243,6 +243,18 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
 
             {/* Daily News Section */}
             {section.dailyNews && renderDailyNews(section.dailyNews)}
+            {/* Daily News images (optional, full width like custom) */}
+            {Array.isArray((section as any).imageDataUrls) && (section as any).imageDataUrls.length > 0 && (
+              <div className="community-news-container">
+                <div className="community-news-item">
+                  {(section as any).imageDataUrls.map((u: string, i: number) => (
+                    <div key={i} style={{ marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
+                      <img src={u} alt={`daily-section-${i}`} style={{ maxWidth: '100%', borderRadius: '12px', display: 'block', margin: '0 auto' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* News Section (simple) */}
             {section.newsItems && renderNews(section.newsItems)}

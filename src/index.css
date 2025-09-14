@@ -1074,6 +1074,24 @@ body {
   margin-bottom: var(--spacing-4);
 }
 
+/* Ensure ordered/unordered lists inside panes have comfortable left padding */
+.community-news-description ol,
+.community-news-description ul,
+.community-news-content ol,
+.community-news-content ul,
+.community-news-preview-description ol,
+.community-news-preview-description ul {
+  padding-left: 1.5rem;
+  margin-left: 0;
+  list-style-position: outside;
+}
+
+.community-news-description li,
+.community-news-content li,
+.community-news-preview-description li {
+  padding-left: 0.125rem;
+}
+
 .community-news-meta {
   display: flex;
   justify-content: space-between;

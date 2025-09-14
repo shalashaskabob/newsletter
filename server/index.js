@@ -428,6 +428,8 @@ function generateNewsletterHTML(newsletterData, opts) {
         .community-news-item { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-4); }
         .community-news-title { font-size: var(--font-size-base); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-2); }
         .community-news-content { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; }
+        .community-news-content ol, .community-news-content ul { padding-left: 1.5rem; margin-left: 0; list-style-position: outside; }
+        .community-news-content li { padding-left: 0.125rem; }
         .community-news-link { display: inline-block; margin-top: var(--spacing-3); background: var(--primary-color); color: var(--bg-primary); text-decoration: none; font-weight: 600; padding: 4px 6px; border-radius: var(--radius-md); font-size: 0.5em; }
         .community-news-link:hover { background: var(--primary-dark); color: var(--bg-primary); }
         /* Images in content reduced by ~50% */

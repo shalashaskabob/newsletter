@@ -134,6 +134,9 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
     friday: ''
   });
 
+  // Daily news optional section image
+  const [dailyNewsImageDataUrl, setDailyNewsImageDataUrl] = useState<string | undefined>(undefined);
+
   // Community news form state
   const [communityNews, setCommunityNews] = useState<CommunityNewsItem[]>([]);
   const [newCommunityNews, setNewCommunityNews] = useState<Partial<CommunityNewsItem>>({
@@ -196,6 +199,11 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       if (savedProp) {
         setPropFirmNews(JSON.parse(savedProp));
       }
+
+      const savedDailyImage = localStorage.getItem('newsletter-daily-news-image');
+      if (savedDailyImage) {
+        setDailyNewsImageDataUrl(savedDailyImage);
+      }
     } catch (error) {
       console.error('Error loading saved data:', error);
     }
@@ -227,6 +235,14 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
   useEffect(() => {
     localStorage.setItem('newsletter-custom', JSON.stringify(customSections));
   }, [customSections]);
+
+  useEffect(() => {
+    if (dailyNewsImageDataUrl) {
+      localStorage.setItem('newsletter-daily-news-image', dailyNewsImageDataUrl);
+    } else {
+      localStorage.removeItem('newsletter-daily-news-image');
+    }
+  }, [dailyNewsImageDataUrl]);
 
   // Removed trade add logic
 
@@ -371,7 +387,8 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       sections.push({
         id: 'daily-news',
         title: formData.labels?.dailyNews || '📰 Economic News',
-        dailyNews: dailyNews
+        dailyNews: dailyNews,
+        imageDataUrl: dailyNewsImageDataUrl
       });
     }
 
@@ -391,6 +408,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       localStorage.removeItem('newsletter-community-news');
       localStorage.removeItem('newsletter-news');
       localStorage.removeItem('newsletter-custom');
+      localStorage.removeItem('newsletter-daily-news-image');
       localStorage.removeItem('newsletter-prop-news');
 
       // Reset all form states
@@ -426,6 +444,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
       setCommunityNews([]);
       setNewsItems([]);
       setCustomSections([]);
+      setDailyNewsImageDataUrl(undefined);
       setNewCommunityNews({
         title: '', description: '', type: 'announcement', date: '', author: '', link: ''
       });
@@ -946,6 +965,33 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ onSubmit, initialData }
                     </div>
                   </div>
                 ))}
+              </div>
+
+              <div className="form-group" style={{ marginTop: '16px' }}>
+                <label>Section Image (optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      const dataUrl = await fileToDataUrlCompressed(file);
+                      setDailyNewsImageDataUrl(dataUrl);
+                    } catch (err) {
+                      console.error('Failed to process image', err);
+                      alert('Could not process image. Please try a different image.');
+                    }
+                  }}
+                />
+                {dailyNewsImageDataUrl && (
+                  <div style={{ marginTop: '8px' }}>
+                    <img src={dailyNewsImageDataUrl} alt="daily-news" style={{ maxWidth: '100%', borderRadius: '8px' }} />
+                    <div style={{ marginTop: '8px' }}>
+                      <button type="button" className="remove-btn" onClick={() => setDailyNewsImageDataUrl(undefined)}>Remove</button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -280,17 +280,17 @@ const Newsletter: React.FC<NewsletterProps> = ({ data }) => {
         
         <div className="footer-links">
           {data.footer.websiteUrl && (
-            <a href={data.footer.websiteUrl} className="footer-link">
+            <a href={data.footer.websiteUrl} className="footer-link" target="_blank" rel="noopener noreferrer">
               Visit Website
             </a>
           )}
           {data.footer.socialLinks?.twitter && (
-            <a href={data.footer.socialLinks.twitter} className="footer-link">
+            <a href={data.footer.socialLinks.twitter} className="footer-link" target="_blank" rel="noopener noreferrer">
               X
             </a>
           )}
           {data.footer.socialLinks?.discord && (
-            <a href={data.footer.socialLinks.discord} className="footer-link">
+            <a href={data.footer.socialLinks.discord} className="footer-link" target="_blank" rel="noopener noreferrer">
               Discord
             </a>
           )}

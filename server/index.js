@@ -439,7 +439,7 @@ function generateNewsletterHTML(newsletterData, opts) {
         .kl-logo { height: 96px; margin-bottom: var(--spacing-3); display: inline-block; }
         /* Top Nav */
         .top-nav { display: flex; gap: var(--spacing-4); align-items: center; padding: var(--spacing-4) var(--spacing-6); border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); position: sticky; top: 0; z-index: 50; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .tab-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; width: 200px; min-width: 200px; max-width: 200px; height: 44px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 12px; }
+        .tab-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: inline-block; width: 200px; min-width: 200px; max-width: 200px; height: 44px; line-height: 44px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 12px; text-decoration: none; box-sizing: border-box; }
         .tab-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
         .tab-btn.active { background: var(--primary-color); color: var(--bg-primary); border-color: var(--primary-color); }
         /* Footer */

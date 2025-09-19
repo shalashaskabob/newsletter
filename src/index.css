@@ -492,6 +492,13 @@ body {
   margin-bottom: var(--spacing-8);
 }
 
+/* Make all top-row buttons a consistent size */
+.controls .btn {
+  min-width: 180px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
 .btn {
   padding: var(--spacing-3) var(--spacing-6);
   border: none;

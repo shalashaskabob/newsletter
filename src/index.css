@@ -1079,6 +1079,7 @@ body {
   color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: var(--spacing-4);
+  white-space: pre-wrap; /* preserve indentation and line breaks */
 }
 
 /* Ensure ordered/unordered lists inside panes have comfortable left padding */
@@ -1097,6 +1098,13 @@ body {
 .community-news-content li,
 .community-news-preview-description li {
   padding-left: 0.125rem;
+}
+
+/* Also preserve whitespace in community content blocks */
+.community-news-content,
+.community-news-preview-description,
+.daily-news-details {
+  white-space: pre-wrap;
 }
 
 .community-news-meta {

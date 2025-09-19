@@ -439,9 +439,10 @@ function generateNewsletterHTML(newsletterData, opts) {
         .kl-logo { height: 96px; margin-bottom: var(--spacing-3); display: inline-block; }
         /* Top Nav */
         .top-nav { display: flex; gap: var(--spacing-4); align-items: center; padding: var(--spacing-4) var(--spacing-6); border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); position: sticky; top: 0; z-index: 50; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .tab-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: inline-block; width: 200px; min-width: 200px; max-width: 200px; height: 44px; line-height: 44px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 12px; text-decoration: none; box-sizing: border-box; }
-        .tab-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
-        .tab-btn.active { background: var(--primary-color); color: var(--bg-primary); border-color: var(--primary-color); }
+        /* Link-style nav items */
+        .tab-btn { background: transparent; border: none; color: var(--text-primary); cursor: pointer; font-weight: 600; display: inline-block; height: 44px; line-height: 44px; text-align: center; white-space: nowrap; padding: 0 14px; text-decoration: none; box-sizing: border-box; border-bottom: 2px solid transparent; }
+        .tab-btn:hover { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        .tab-btn.active { color: var(--bg-primary); background: var(--primary-color); border-radius: var(--radius-md) var(--radius-md) 0 0; border-bottom-color: var(--primary-color); }
         /* Footer */
         .newsletter-footer { border-top: 1px solid var(--border-color); padding: var(--spacing-8) var(--spacing-6); color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-4); flex-wrap: wrap; }
         .footer-text p { margin: 0; }

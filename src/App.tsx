@@ -9,6 +9,10 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentView, setCurrentView] = useState<'form' | 'preview'>('form');
   const [newsletterData, setNewsletterData] = useState<NewsletterData>({ ...sampleNewsletterData, fontScale: 1 });
+  const [showSavePicker, setShowSavePicker] = useState(false);
+  const [serverSaves, setServerSaves] = useState<Array<{ id: string; name?: string; mtimeMs: number; size: number }>>([]);
+  const [selectedSaveId, setSelectedSaveId] = useState<string>('');
+  const [loadingSaves, setLoadingSaves] = useState<boolean>(false);
 
   // Apply font scale to document root for preview
   useEffect(() => {
@@ -176,6 +180,31 @@ function App() {
     setCurrentView('preview');
   };
 
+  const openSavePicker = async () => {
+    try {
+      setLoadingSaves(true);
+      const res = await fetch('/api/saves');
+      if (!res.ok) throw new Error('Failed to list saves');
+      const json = await res.json();
+      const items = (json?.items || []) as Array<{ id: string; name?: string; mtimeMs: number; size: number }>;
+      setServerSaves(items);
+      setSelectedSaveId(items[0]?.id || '');
+      setShowSavePicker(true);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to load saves list.');
+    } finally {
+      setLoadingSaves(false);
+    }
+  };
+
+  const handleLoadSelected = async () => {
+    if (!selectedSaveId) { alert('Pick a save to load.'); return; }
+    localStorage.setItem('newsletter-shared-id', selectedSaveId);
+    await handleLoadSnapshotState();
+    setShowSavePicker(false);
+  };
+
   return (
     <div className="app-container">
       <div className="app-header">
@@ -218,24 +247,7 @@ function App() {
         </button>
         <button 
           className="btn btn-secondary" 
-          onClick={async () => {
-            try {
-              const res = await fetch('/api/saves');
-              if (!res.ok) throw new Error('Failed to list saves');
-              const json = await res.json();
-              const items = (json?.items || []) as Array<{ id: string; name?: string; mtimeMs: number; size: number }>;
-              if (!items.length) { alert('No server saves found.'); return; }
-              const label = items.map(i => `${i.id}${i.name ? `  -  ${i.name}` : ''}  (${new Date(i.mtimeMs).toLocaleString()})`).join('\n');
-              const picked = prompt(`Enter ID to load:\n\n${label}\n\n`, items[0].id);
-              if (!picked) return;
-              localStorage.setItem('newsletter-shared-id', picked);
-              await handleLoadSnapshotState();
-            } catch (e) {
-              console.error(e);
-              alert('Failed to open server saves. Falling back to local load.');
-              await handleLoadSnapshotState();
-            }
-          }}
+          onClick={openSavePicker}
         >
           Load
         </button>
@@ -278,6 +290,35 @@ function App() {
         />
       ) : (
         <Newsletter data={newsletterData} />
+      )}
+
+      {showSavePicker && (
+        <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, minWidth: 320 }}>
+            <div style={{ marginBottom: 8, color: 'var(--text-primary)', fontWeight: 600 }}>Pick a saved file to load</div>
+            {loadingSaves ? (
+              <div style={{ color: 'var(--text-secondary)' }}>Loading…</div>
+            ) : serverSaves.length ? (
+              <select
+                value={selectedSaveId}
+                onChange={(e) => setSelectedSaveId(e.target.value)}
+                style={{ width: '100%', padding: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: 6 }}
+              >
+                {serverSaves.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {(s.name || s.id)} — {new Date(s.mtimeMs).toLocaleString()}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div style={{ color: 'var(--text-secondary)' }}>No saves found.</div>
+            )}
+            <div style={{ display: 'flex', gap: 8, marginTop: 8, justifyContent: 'flex-end' }}>
+              <button className="btn btn-secondary" onClick={() => setShowSavePicker(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleLoadSelected} disabled={!selectedSaveId}>Load Selected</button>
+            </div>
+          </div>
+        </div>
       )}
       <EmojiPane />
     </div>

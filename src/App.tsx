@@ -293,8 +293,30 @@ function App() {
       )}
 
       {showSavePicker && (
-        <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, minWidth: 320 }}>
+        <div
+          onClick={() => setShowSavePicker(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 1000,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'flex-start'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              marginTop: 80,
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 8,
+              padding: 12,
+              minWidth: 320,
+              maxWidth: '90vw'
+            }}
+          >
             <div style={{ marginBottom: 8, color: 'var(--text-primary)', fontWeight: 600 }}>Pick a saved file to load</div>
             {loadingSaves ? (
               <div style={{ color: 'var(--text-secondary)' }}>Loading…</div>

@@ -78,6 +78,7 @@ function isPublicPath(p) {
     p === '/login' ||
     p === '/api/login' ||
     p === '/api/health' ||
+    // listing saves remains behind auth; do not expose here
     p.startsWith('/published/') ||
     p.startsWith('/published') ||
     p === '/logo.svg' ||
@@ -334,6 +335,21 @@ app.get('/api/save/:id', (req, res) => {
   } catch (e) {
     console.error('Failed to load snapshot', e);
     return res.status(500).json({ error: 'Failed to load snapshot' });
+  }
+});
+
+// List: GET /api/saves -> { items: [{ id, size, mtimeMs }] }
+app.get('/api/saves', (req, res) => {
+  try {
+    const entries = fs.readdirSync(SAVES_DIR).filter(f => f.endsWith('.json'));
+    const items = entries.map((f) => {
+      const st = fs.statSync(path.join(SAVES_DIR, f));
+      return { id: f.replace(/\.json$/, ''), size: st.size, mtimeMs: st.mtimeMs };
+    }).sort((a, b) => b.mtimeMs - a.mtimeMs);
+    return res.json({ items });
+  } catch (e) {
+    console.error('Failed to list saves', e);
+    return res.status(500).json({ error: 'Failed to list saves' });
   }
 });
 

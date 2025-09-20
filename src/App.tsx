@@ -217,7 +217,24 @@ function App() {
         </button>
         <button 
           className="btn btn-secondary" 
-          onClick={handleLoadSnapshotState}
+          onClick={async () => {
+            try {
+              const res = await fetch('/api/saves');
+              if (!res.ok) throw new Error('Failed to list saves');
+              const json = await res.json();
+              const items = (json?.items || []) as Array<{ id: string; mtimeMs: number; size: number }>;
+              if (!items.length) { alert('No server saves found.'); return; }
+              const label = items.map(i => `${i.id}  (${new Date(i.mtimeMs).toLocaleString()})`).join('\n');
+              const picked = prompt(`Enter ID to load:\n\n${label}\n\n`, items[0].id);
+              if (!picked) return;
+              localStorage.setItem('newsletter-shared-id', picked);
+              await handleLoadSnapshotState();
+            } catch (e) {
+              console.error(e);
+              alert('Failed to open server saves. Falling back to local load.');
+              await handleLoadSnapshotState();
+            }
+          }}
         >
           Load
         </button>

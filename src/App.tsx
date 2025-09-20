@@ -87,7 +87,8 @@ function App() {
       setNewsletterData(currentNewsletterData);
       setFormKey((k) => k + 1); // force remount so form reloads localStorage state
       setCurrentView('form');
-      alert('Loaded saved state.');
+      // Ensure UI reflects loaded content even if some components cache state
+      setTimeout(() => window.location.reload(), 0);
     } catch (e) {
       alert('Failed to load saved state.');
     }

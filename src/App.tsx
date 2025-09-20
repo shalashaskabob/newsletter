@@ -205,6 +205,8 @@ function App() {
     localStorage.setItem('newsletter-shared-id', selectedSaveId);
     await handleLoadSnapshotState();
     setShowSavePicker(false);
+    // Refresh so all components rehydrate from loaded localStorage state
+    window.location.reload();
   };
 
   return (

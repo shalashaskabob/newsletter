@@ -15,11 +15,17 @@ app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 // Persistent publish directory on Render
 const PUBLISH_DIR = process.env.PUBLISH_DIR || '/var/data/published';
+const SAVES_DIR = process.env.SAVES_DIR || '/var/data/saves';
 const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || '';
 try {
   fs.mkdirSync(PUBLISH_DIR, { recursive: true });
 } catch (e) {
   console.warn('Could not ensure publish dir exists:', e?.message);
+}
+try {
+  fs.mkdirSync(SAVES_DIR, { recursive: true });
+} catch (e) {
+  console.warn('Could not ensure saves dir exists:', e?.message);
 }
 // Serve published HTML files
 app.use('/published', express.static(PUBLISH_DIR));
@@ -299,6 +305,36 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: NODE_ENV 
   });
+});
+
+// Save/Load snapshots to persistent storage so multiple devices can share
+// Save: POST { id?: string, snapshot: object } -> { id }
+app.post('/api/save', (req, res) => {
+  try {
+    const body = req.body || {};
+    const id = (body.id && String(body.id).trim()) || String(Date.now());
+    const file = path.join(SAVES_DIR, `${id}.json`);
+    fs.writeFileSync(file, JSON.stringify(body.snapshot || {}, null, 2), 'utf8');
+    return res.json({ id });
+  } catch (e) {
+    console.error('Failed to save snapshot', e);
+    return res.status(500).json({ error: 'Failed to save snapshot' });
+  }
+});
+
+// Load: GET /api/save/:id -> { snapshot }
+app.get('/api/save/:id', (req, res) => {
+  try {
+    const id = String(req.params.id || '').trim();
+    if (!id) return res.status(400).json({ error: 'Missing id' });
+    const file = path.join(SAVES_DIR, `${id}.json`);
+    if (!fs.existsSync(file)) return res.status(404).json({ error: 'Not found' });
+    const snapshot = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return res.json({ snapshot });
+  } catch (e) {
+    console.error('Failed to load snapshot', e);
+    return res.status(500).json({ error: 'Failed to load snapshot' });
+  }
 });
 
 // Serve React app for all other routes

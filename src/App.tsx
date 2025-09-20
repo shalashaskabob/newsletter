@@ -21,7 +21,7 @@ function App() {
   }, [newsletterData.fontScale]);
 
   // Save/Load snapshot of all form-related state
-  const handleSaveSnapshot = () => {
+  const handleSaveSnapshot = async () => {
     try {
       const snapshot = {
         basic: localStorage.getItem('newsletter-form-basic'),
@@ -33,15 +33,38 @@ function App() {
         font: localStorage.getItem('newsletter-font-scale')
       };
       localStorage.setItem('newsletter-snapshot', JSON.stringify(snapshot));
-      alert('Saved current state.');
+      // Also save server-side for cross-device use
+      const res = await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ snapshot }) });
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.id) {
+          localStorage.setItem('newsletter-shared-id', json.id);
+          alert(`Saved. Share ID: ${json.id}`);
+        } else {
+          alert('Saved locally and on server.');
+        }
+      } else {
+        alert('Saved locally. Server save failed.');
+      }
     } catch (e) {
       alert('Failed to save.');
     }
   };
 
-  const handleLoadSnapshotState = () => {
+  const handleLoadSnapshotState = async () => {
     try {
-      const raw = localStorage.getItem('newsletter-snapshot');
+      let raw = localStorage.getItem('newsletter-snapshot');
+      // If user has a shared id, try server first
+      const sharedId = localStorage.getItem('newsletter-shared-id');
+      if (sharedId) {
+        try {
+          const res = await fetch(`/api/save/${sharedId}`);
+          if (res.ok) {
+            const json = await res.json();
+            raw = JSON.stringify(json.snapshot || {});
+          }
+        } catch {}
+      }
       if (!raw) {
         alert('No saved state found.');
         return;

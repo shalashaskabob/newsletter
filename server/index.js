@@ -314,9 +314,18 @@ app.post('/api/save', (req, res) => {
   try {
     const body = req.body || {};
     const id = (body.id && String(body.id).trim()) || String(Date.now());
+    const name = (body.name && String(body.name).trim()) || `newsletter-${id}`;
     const file = path.join(SAVES_DIR, `${id}.json`);
-    fs.writeFileSync(file, JSON.stringify(body.snapshot || {}, null, 2), 'utf8');
-    return res.json({ id });
+    const payload = {
+      meta: {
+        id,
+        name,
+        savedAt: Date.now()
+      },
+      snapshot: body.snapshot || {}
+    };
+    fs.writeFileSync(file, JSON.stringify(payload, null, 2), 'utf8');
+    return res.json({ id, name });
   } catch (e) {
     console.error('Failed to save snapshot', e);
     return res.status(500).json({ error: 'Failed to save snapshot' });
@@ -330,8 +339,10 @@ app.get('/api/save/:id', (req, res) => {
     if (!id) return res.status(400).json({ error: 'Missing id' });
     const file = path.join(SAVES_DIR, `${id}.json`);
     if (!fs.existsSync(file)) return res.status(404).json({ error: 'Not found' });
-    const snapshot = JSON.parse(fs.readFileSync(file, 'utf8'));
-    return res.json({ snapshot });
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    // Support older format (no meta)
+    const snapshot = data && data.snapshot ? data.snapshot : data;
+    return res.json({ snapshot, meta: data.meta || { id } });
   } catch (e) {
     console.error('Failed to load snapshot', e);
     return res.status(500).json({ error: 'Failed to load snapshot' });
@@ -344,7 +355,12 @@ app.get('/api/saves', (req, res) => {
     const entries = fs.readdirSync(SAVES_DIR).filter(f => f.endsWith('.json'));
     const items = entries.map((f) => {
       const st = fs.statSync(path.join(SAVES_DIR, f));
-      return { id: f.replace(/\.json$/, ''), size: st.size, mtimeMs: st.mtimeMs };
+      let name = '';
+      try {
+        const raw = JSON.parse(fs.readFileSync(path.join(SAVES_DIR, f), 'utf8'));
+        name = (raw && raw.meta && raw.meta.name) || '';
+      } catch {}
+      return { id: f.replace(/\.json$/, ''), name, size: st.size, mtimeMs: st.mtimeMs };
     }).sort((a, b) => b.mtimeMs - a.mtimeMs);
     return res.json({ items });
   } catch (e) {

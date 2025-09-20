@@ -34,12 +34,13 @@ function App() {
       };
       localStorage.setItem('newsletter-snapshot', JSON.stringify(snapshot));
       // Also save server-side for cross-device use
-      const res = await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ snapshot }) });
+      const desiredName = prompt('Enter a name for this save (optional):', 'My Newsletter');
+      const res = await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ snapshot, name: desiredName || undefined }) });
       if (res.ok) {
         const json = await res.json();
         if (json?.id) {
           localStorage.setItem('newsletter-shared-id', json.id);
-          alert(`Saved. Share ID: ${json.id}`);
+          alert(`Saved as: ${json.name || json.id} (ID: ${json.id})`);
         } else {
           alert('Saved locally and on server.');
         }
@@ -222,9 +223,9 @@ function App() {
               const res = await fetch('/api/saves');
               if (!res.ok) throw new Error('Failed to list saves');
               const json = await res.json();
-              const items = (json?.items || []) as Array<{ id: string; mtimeMs: number; size: number }>;
+              const items = (json?.items || []) as Array<{ id: string; name?: string; mtimeMs: number; size: number }>;
               if (!items.length) { alert('No server saves found.'); return; }
-              const label = items.map(i => `${i.id}  (${new Date(i.mtimeMs).toLocaleString()})`).join('\n');
+              const label = items.map(i => `${i.id}${i.name ? `  -  ${i.name}` : ''}  (${new Date(i.mtimeMs).toLocaleString()})`).join('\n');
               const picked = prompt(`Enter ID to load:\n\n${label}\n\n`, items[0].id);
               if (!picked) return;
               localStorage.setItem('newsletter-shared-id', picked);

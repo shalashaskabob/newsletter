@@ -87,8 +87,11 @@ function App() {
       setNewsletterData(currentNewsletterData);
       setFormKey((k) => k + 1); // force remount so form reloads localStorage state
       setCurrentView('form');
-      // Ensure UI reflects loaded content even if some components cache state
-      setTimeout(() => window.location.reload(), 0);
+      // Ensure UI reflects loaded content; bust cache to force a real reload
+      setTimeout(() => {
+        const url = `${window.location.pathname}?r=${Date.now()}`;
+        window.location.replace(url);
+      }, 0);
     } catch (e) {
       alert('Failed to load saved state.');
     }
@@ -206,8 +209,9 @@ function App() {
     localStorage.setItem('newsletter-shared-id', selectedSaveId);
     await handleLoadSnapshotState();
     setShowSavePicker(false);
-    // Refresh so all components rehydrate from loaded localStorage state
-    window.location.reload();
+    // Refresh so all components rehydrate from loaded localStorage state (cache-busting)
+    const url = `${window.location.pathname}?r=${Date.now()}`;
+    window.location.replace(url);
   };
 
   return (

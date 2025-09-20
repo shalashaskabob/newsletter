@@ -9,6 +9,7 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentView, setCurrentView] = useState<'form' | 'preview'>('form');
   const [newsletterData, setNewsletterData] = useState<NewsletterData>({ ...sampleNewsletterData, fontScale: 1 });
+  const [formKey, setFormKey] = useState<number>(0);
   const [showSavePicker, setShowSavePicker] = useState(false);
   const [serverSaves, setServerSaves] = useState<Array<{ id: string; name?: string; mtimeMs: number; size: number }>>([]);
   const [selectedSaveId, setSelectedSaveId] = useState<string>('');
@@ -84,6 +85,7 @@ function App() {
       if (snap.font) localStorage.setItem('newsletter-font-scale', snap.font);
       const currentNewsletterData = generateNewsletterFromCurrentData();
       setNewsletterData(currentNewsletterData);
+      setFormKey((k) => k + 1); // force remount so form reloads localStorage state
       setCurrentView('form');
       alert('Loaded saved state.');
     } catch (e) {
@@ -285,6 +287,7 @@ function App() {
 
       {currentView === 'form' ? (
         <NewsletterForm 
+          key={formKey}
           onSubmit={handleFormSubmit}
           initialData={newsletterData}
         />
